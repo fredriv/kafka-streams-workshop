@@ -14,4 +14,5 @@ dependencies {
 
 	testCompile 'org.scalatest:scalatest_2.12:3.0.4'
 	testCompile 'com.madewithtea:mockedstreams_2.12:1.5.0'
+	testRuntime 'org.pegdown:pegdown:1.4.2' // required by gradle-scalatest
 }

@@ -16,8 +16,6 @@ class HelloKafkaStreams extends KafkaStreamsApp {
   }
 }
 
-object HelloKafkaStreams {
-  def main(args: Array[String]): Unit = {
-    new HelloKafkaStreams().start("hello-kafka-streams")
-  }
+object HelloKafkaStreams extends App {
+  new HelloKafkaStreams().start("hello-kafka-streams")
 }
