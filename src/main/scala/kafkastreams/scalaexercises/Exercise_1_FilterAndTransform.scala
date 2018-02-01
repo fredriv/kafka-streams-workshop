@@ -22,7 +22,8 @@ object Exercise_1_FilterAndTransform {
     * the new topic 'pass-through'
     */
   def passEventsThroughDirectly(builder: StreamsBuilder): Unit = {
-
+    val stream = builder.stream("text", Consumed.`with`(strings, strings))
+    stream.to("pass-through", Produced.`with`(strings, strings))
   }
 
   /**
@@ -31,7 +32,9 @@ object Exercise_1_FilterAndTransform {
     * as a stream of ints
     */
   def lineLengths(builder: StreamsBuilder): Unit = {
-
+    builder.stream("text", Consumed.`with`(strings, strings))
+      .mapValues[Integer](line => line.length)
+      .to("line-lengths", Produced.`with`(strings, ints))
   }
 
   /**
@@ -40,7 +43,9 @@ object Exercise_1_FilterAndTransform {
     * stream of ints
     */
   def wordsPerLine(builder: StreamsBuilder): Unit = {
-
+    builder.stream("text", Consumed.`with`(strings, strings))
+      .mapValues[Integer](line => line.split(" ").length)
+      .to("words-per-line", Produced.`with`(strings, ints))
   }
 
   /**
@@ -49,7 +54,9 @@ object Exercise_1_FilterAndTransform {
     * 'contains-conference'
     */
   def linesContainingData(builder: StreamsBuilder): Unit = {
-
+    builder.stream("text", Consumed.`with`(strings, strings))
+      .filter((key, line) => line.contains("conference"))
+      .to("contains-conference", Produced.`with`(strings, strings))
   }
 
   /**
@@ -57,7 +64,9 @@ object Exercise_1_FilterAndTransform {
     * send them individually to the topic 'all-the-words'
     */
   def allTheWords(builder: StreamsBuilder): Unit = {
-
+    builder.stream("text", Consumed.`with`(strings, strings))
+      .flatMapValues[String](line => util.Arrays.asList(line.split(" "): _*))
+      .to("all-the-words", Produced.`with`(strings, strings))
   }
 
   /**
@@ -66,7 +75,9 @@ object Exercise_1_FilterAndTransform {
     * and send the URL as a string to the topic 'urls-visited'
     */
   def urlsVisited(builder: StreamsBuilder): Unit = {
-
+    builder.stream("click-events", Consumed.`with`(strings, json))
+      .mapValues[String](json => json.path("object").path("url").asText)
+      .to("urls-visited", Produced.`with`(strings, strings))
   }
 
   /**
@@ -76,7 +87,9 @@ object Exercise_1_FilterAndTransform {
     * events unmodified to the topic 'articles' as json
     */
   def articles(builder: StreamsBuilder): Unit = {
-
+    builder.stream("click-events", Consumed.`with`(strings, json))
+      .filter((key, json) => json.path("object").path("@type").asText == "Article")
+      .to("articles", Produced.`with`(strings, json))
   }
 
   /**
@@ -85,7 +98,10 @@ object Exercise_1_FilterAndTransform {
     * URLs to the topic 'article-urls' as strings
     */
   def articleVisits(builder: StreamsBuilder): Unit = {
-
+    builder.stream("click-events", Consumed.`with`(strings, json))
+      .filter((key, json) => json.path("object").path("@type").asText == "Article")
+      .mapValues[String](json => json.path("object").path("url").asText)
+      .to("article-urls", Produced.`with`(strings, strings))
   }
 
   /**
@@ -94,7 +110,10 @@ object Exercise_1_FilterAndTransform {
     * object prices to the topic 'classified-ad-prices' as ints
     */
   def classifiedAdPrices(builder: StreamsBuilder): Unit = {
-
+    builder.stream("click-events", Consumed.`with`(strings, json))
+      .filter((key, json) => json.path("object").path("@type").asText == "ClassifiedAd")
+      .mapValues[Integer](json => json.path("object").path("price").asInt)
+      .to("classified-ad-prices", Produced.`with`(strings, ints))
   }
 
   /**
@@ -110,7 +129,17 @@ object Exercise_1_FilterAndTransform {
     * 'simplified-classified-ads'
     */
   def simplifiedClassifiedAds(builder: StreamsBuilder): Unit = {
+    val mapper = new ObjectMapper
 
+    val simplifiedClassifiedAd: ValueMapper[JsonNode, JsonNode] =
+      json => mapper.createObjectNode
+        .put("title", json.path("object").path("name").asText())
+        .put("price", json.path("object").path("price").asInt())
+
+    builder.stream("click-events", Consumed.`with`(strings, json))
+      .filter((key, json) => json.path("object").path("@type").asText == "ClassifiedAd")
+      .mapValues[JsonNode](simplifiedClassifiedAd)
+      .to("simplified-classified-ads", Produced.`with`(strings, json))
   }
 
   /**
@@ -125,7 +154,15 @@ object Exercise_1_FilterAndTransform {
     * Can you think of more than one way to solve it?
     */
   def splitArticlesAndAds(builder: StreamsBuilder): Unit = {
+    val clicks = builder.stream("click-events", Consumed.`with`(strings, json))
+    val branches = clicks.branch(objectType("Article"), objectType("ClassifiedAd"))
+    branches(0).to("articles", Produced.`with`(strings, json))
+    branches(1).to("classified-ads", Produced.`with`(strings, json))
 
+    /*
+    clicks.filter(objectType("Article")).to(strings, json, "articles");
+    clicks.filter(objectType("ClassifiedAd")).to(strings, json, "classified-ads");
+    */
   }
 
   def objectType(`type`: String): Predicate[String, JsonNode] =
@@ -140,7 +177,11 @@ object Exercise_1_FilterAndTransform {
     * parsing and error handling.
     */
   def filterOutInvalidJson(builder: StreamsBuilder): Unit = {
+    val mapper = new ObjectMapper
 
+    builder.stream("click-events", Consumed.`with`(strings, strings))
+      .flatMapValues[JsonNode](tryParseJson)
+      .to("json-events", Produced.`with`(strings, json))
   }
 
   private val mapper = new ObjectMapper
