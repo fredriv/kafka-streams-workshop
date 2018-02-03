@@ -20,8 +20,8 @@ class BranchExample extends KafkaStreamsApp {
 
     val topics = List("BBC-Articles", "CNN-Articles", "FoxNews-Articles", "Other-Articles")
 
-    articlesPerSite.zip(topics)
-      .foreach { case (stream, topic) => stream.to(topic, Produced.`with`(strings, json)) }
+    for ((stream, topic) <- articlesPerSite.zip(topics))
+      stream.to(topic, Produced.`with`(strings, json))
 
     builder.build()
   }
