@@ -15,12 +15,12 @@ class BranchExample extends KafkaStreamsApp {
 
     val articles = builder.stream("Articles", Consumed.`with`(strings, json))
 
-    val articlesPerSite = articles.branch(
+    val articlesPerSite = articles.branchS(
       (key, article) => article("site").asText == "bbc",
       (key, article) => article("site").asText == "cnn",
       (key, article) => article("site").asText == "foxnews",
       (key, article) => true // catch remaining events
-    ).toList
+    )
 
     val topics = List("BBC-Articles", "CNN-Articles", "FoxNews-Articles", "Other-Articles")
 

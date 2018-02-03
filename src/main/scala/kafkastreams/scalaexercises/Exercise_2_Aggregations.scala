@@ -4,13 +4,12 @@ import java.util
 import java.util.concurrent.TimeUnit
 
 import com.fasterxml.jackson.databind.JsonNode
-import kafkastreams.scalaexercises.Exercise_1_FilterAndTransform.objectType
 import kafkastreams.serdes.JsonNodeSerde
 import org.apache.kafka.common.serialization.Serdes
-import org.apache.kafka.streams.kstream.{Materialized, Produced, Serialized, TimeWindows}
+import org.apache.kafka.streams.kstream.{Materialized, Predicate, Produced, Serialized, TimeWindows}
 import org.apache.kafka.streams.{Consumed, KeyValue, StreamsBuilder}
 
-object Exercise_2_Aggregations {
+class Exercise_2_Aggregations {
 
   private val strings = Serdes.String
   private val ints = Serdes.Integer
@@ -83,6 +82,9 @@ object Exercise_2_Aggregations {
       .toStream
       .to("total-classifieds-price-per-site", Produced.`with`(strings, ints))
   }
+
+  def objectType(`type`: String): Predicate[String, JsonNode] =
+    (key, json) => json.path("object").path("@type").asText == `type`
 
   /**
     * Read the topic 'pulse-events' and count the number of events

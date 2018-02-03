@@ -19,16 +19,16 @@ import static kafkastreams.javaexercises.Exercise_1_FilterAndTransform.objectTyp
 
 public class Exercise_2_Aggregations {
 
-    private static Serde<String> strings = Serdes.String();
-    private static Serde<Integer> ints = Serdes.Integer();
-    private static Serde<Long> longs = Serdes.Long();
-    private static Serde<JsonNode> json = new JsonNodeSerde();
+    private Serde<String> strings = Serdes.String();
+    private Serde<Integer> ints = Serdes.Integer();
+    private Serde<Long> longs = Serdes.Long();
+    private Serde<JsonNode> json = new JsonNodeSerde();
 
     /**
      * Read the topic 'colors' and count the number of occurrences of
      * each color. Write the result to the topic 'color-counts'.
      */
-    public static void countColorOccurrences(StreamsBuilder builder) {
+    public void countColorOccurrences(StreamsBuilder builder) {
         builder.stream("colors", Consumed.with(strings, strings))
 //                .map((key, color) -> KeyValue.pair(color, 1))
 //                .groupByKey(Serialized.with(strings, ints))
@@ -43,7 +43,7 @@ public class Exercise_2_Aggregations {
      * of each word in the text. Write the result to the topic
      * 'word-counts'.
      */
-    public static void countWordOccurrences(StreamsBuilder builder) {
+    public void countWordOccurrences(StreamsBuilder builder) {
         builder.stream("hamlet", Consumed.with(strings, strings))
                 .flatMapValues(line -> Arrays.asList(line.split(" ")))
 //                .mapValues(String::toLowerCase)
@@ -60,7 +60,7 @@ public class Exercise_2_Aggregations {
      * per site (field 'provider.@id'). Write the results to the topic
      * 'clicks-per-site'.
      */
-    public static void clicksPerSite(StreamsBuilder builder) {
+    public void clicksPerSite(StreamsBuilder builder) {
         builder.stream("click-events", Consumed.with(strings, json))
 //                .selectKey((key, json) -> json.path("provider").path("@id").asText())
 //                .groupByKey(Serialized.with(strings, json))
@@ -78,7 +78,7 @@ public class Exercise_2_Aggregations {
      *
      * Hint: Use method 'reduce' on the grouped stream.
      */
-    public static void totalClassifiedsPricePerSite(StreamsBuilder builder) {
+    public void totalClassifiedsPricePerSite(StreamsBuilder builder) {
         builder.stream("click-events", Consumed.with(strings, json))
                 .filter(objectType("ClassifiedAd"))
                 .map((key, json) -> KeyValue.pair(
@@ -96,7 +96,7 @@ public class Exercise_2_Aggregations {
      * per site (field 'provider.@id') per hour. Write the results to
      * the state store 'clicks-per-hour'.
      */
-    public static void clicksPerHour(StreamsBuilder builder) {
+    public void clicksPerHour(StreamsBuilder builder) {
         builder.stream("click-events", Consumed.with(strings, json))
                 .selectKey((key, json) -> json.path("provider").path("@id").asText())
                 .groupByKey(Serialized.with(strings, json))
