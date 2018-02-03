@@ -1,20 +1,23 @@
 package kafkastreams.scalaexercises
 
-import java.util
 import java.util.concurrent.TimeUnit
 
 import com.fasterxml.jackson.databind.JsonNode
+import kafkastreams.scalautils.IntSerde
+import kafkastreams.scalautils.JacksonDSL._
+import kafkastreams.scalautils.KafkaStreamsDSL._
 import kafkastreams.serdes.JsonNodeSerde
 import org.apache.kafka.common.serialization.Serdes
-import org.apache.kafka.streams.kstream.{Materialized, Predicate, Produced, Serialized, TimeWindows}
-import org.apache.kafka.streams.{Consumed, KeyValue, StreamsBuilder}
+import org.apache.kafka.streams.kstream.{Materialized, Predicate, Produced, TimeWindows}
+import org.apache.kafka.streams.{Consumed, StreamsBuilder}
 
 class Exercise_2_Aggregations {
 
-  private val strings = Serdes.String
-  private val ints = Serdes.Integer
-  private val longs = Serdes.Long
-  private val json = new JsonNodeSerde
+  private implicit val strings = Serdes.String
+  private implicit val ints = Serdes.Integer
+  private implicit val scalaInts = new IntSerde
+  private implicit val longs = Serdes.Long
+  private implicit val json = new JsonNodeSerde
 
   /**
     * Read the topic 'colors' and count the number of occurrences of
@@ -22,19 +25,19 @@ class Exercise_2_Aggregations {
     */
   def countColorOccurrences(builder: StreamsBuilder): Unit = {
     builder.stream("colors", Consumed.`with`(strings, strings))
-      .groupBy((key: String, color: String) => color, Serialized.`with`(strings, strings))
+      .groupByS((key, color) => color)
       .count
       .toStream
-      .to("color-counts", Produced.`with`(strings, longs))
+      .toS("color-counts")
 
     /* Alternatively
 
     builder.stream("colors", Consumed.`with`(strings, strings))
-      .map[String, Integer]((key, color) => KeyValue.pair(color, 1))
-      .groupByKey(Serialized.`with`(strings, ints))
+      .mapS((key, color) => (color, 1))
+      .groupByKeyS
       .count
       .toStream
-      .to("color-counts", Produced.`with`(strings, longs))
+      .toS("color-counts")
      */
   }
 
@@ -45,22 +48,22 @@ class Exercise_2_Aggregations {
     */
   def countWordOccurrences(builder: StreamsBuilder): Unit = {
     builder.stream("hamlet", Consumed.`with`(strings, strings))
-      .flatMapValues[String](line => util.Arrays.asList(line.split(" "): _*))
-      .mapValues[String](_.toLowerCase)
-      .groupBy((key: String, word: String) => word, Serialized.`with`(strings, strings))
+      .flatMapValuesS(line => line.split(" "))
+      .mapValuesS(_.toLowerCase)
+      .groupByS((key, word) => word)
       .count
       .toStream
-      .to("word-counts", Produced.`with`(strings, longs))
+      .toS("word-counts")
 
     /* Alternatively
 
     builder.stream("hamlet", Consumed.`with`(strings, strings))
-      .flatMapValues[String](line => util.Arrays.asList(line.split(" "): _*))
-      .map[String, Integer]((key, word) => KeyValue.pair(word.toLowerCase, 1))
-      .groupByKey(Serialized.`with`(strings, ints))
+      .flatMapValuesS(line => line.split(" "))
+      .mapS((key, word) => (word.toLowerCase, 1))
+      .groupByKeyS
       .count
       .toStream
-      .to("word-counts", Produced.`with`(strings, longs))
+      .toS("word-counts")
      */
   }
 
@@ -71,20 +74,19 @@ class Exercise_2_Aggregations {
     */
   def clicksPerSite(builder: StreamsBuilder): Unit = {
     builder.stream("click-events", Consumed.`with`(strings, json))
-      .selectKey[String]((key, json) => json.path("provider").path("@id").asText())
-      .groupByKey(Serialized.`with`(strings, json))
+      .selectKey[String]((key, event) => event("provider")("@id").asText())
+      .groupByKeyS
       .count
       .toStream
       .to("clicks-per-site", Produced.`with`(strings, longs))
 
     /* Alternatively
-
     builder.stream("click-events", Consumed.`with`(strings, json))
-      .map[String, Integer]((key, json) => KeyValue.pair(json.path("provider").path("@id").asText, 1))
-      .groupByKey(Serialized.`with`(strings, ints))
+      .mapS((key, event) => (event("provider")("@id").asText, 1))
+      .groupByKeyS
       .count
       .toStream
-      .to("clicks-per-site", Produced.`with`(strings, longs))
+      .toS("clicks-per-site")
      */
   }
 
@@ -96,16 +98,18 @@ class Exercise_2_Aggregations {
     * Hint: Use method 'reduce' on the grouped stream.
     */
   def totalClassifiedsPricePerSite(builder: StreamsBuilder): Unit = {
+    val objectPrice = (key: String, event: JsonNode) => (
+      event("provider")("@id").asText,
+      event("object")("price").asInt
+    )
+
     builder.stream("click-events", Consumed.`with`(strings, json))
       .filter(objectType("ClassifiedAd"))
-      .map[String, Integer]((key, json) => KeyValue.pair(
-        json.path("provider").path("@id").asText,
-        json.path("object").path("price").asInt)
-      )
-      .groupByKey(Serialized.`with`(strings, ints))
+      .mapS(objectPrice)
+      .groupByKeyS
       .reduce((a, b) => a + b)
       .toStream
-      .to("total-classifieds-price-per-site", Produced.`with`(strings, ints))
+      .toS("total-classifieds-price-per-site")
   }
 
   def objectType(`type`: String): Predicate[String, JsonNode] =
@@ -118,8 +122,8 @@ class Exercise_2_Aggregations {
     */
   def clicksPerHour(builder: StreamsBuilder): Unit = {
     builder.stream("click-events", Consumed.`with`(strings, json))
-      .selectKey[String]((key, json) => json.path("provider").path("@id").asText)
-      .groupByKey(Serialized.`with`(strings, json))
+      .selectKey[String]((key, json) => json("provider")("@id").asText)
+      .groupByKeyS
       .windowedBy(TimeWindows.of(TimeUnit.HOURS.toMillis(1)))
       .count(Materialized.as("clicks-per-hour"))
   }
