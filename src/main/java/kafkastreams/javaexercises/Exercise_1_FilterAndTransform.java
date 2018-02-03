@@ -53,7 +53,7 @@ public class Exercise_1_FilterAndTransform {
      * word 'conference' and send them to the topic
      * 'contains-conference'
      */
-    public void linesContainingData(StreamsBuilder builder) {
+    public void linesContainingConference(StreamsBuilder builder) {
 
     }
 
