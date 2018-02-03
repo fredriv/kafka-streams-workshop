@@ -2,14 +2,11 @@ package kafkastreams.exercises
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.madewithtea.mockedstreams.MockedStreams
-//import kafkastreams.javaexercises.Exercise_1_FilterAndTransform
-import kafkastreams.scalaexercises.Exercise_1_FilterAndTransform
 import kafkastreams.serdes.JsonNodeSerde
 import org.apache.kafka.common.serialization.Serdes
-import org.scalatest.{FunSuite, Matchers}
 import ClickEvents.clickEvents
 
-class Exercise_1_FilterAndTransformTest extends FunSuite with Matchers {
+class Exercise_1_FilterAndTransformTest extends ExerciseBase {
 
   val strings = Serdes.String()
   val ints = Serdes.Integer()
@@ -26,7 +23,7 @@ class Exercise_1_FilterAndTransformTest extends FunSuite with Matchers {
     val expected = input
 
     val result = MockedStreams()
-      .topology(builder => Exercise_1_FilterAndTransform.passEventsThroughDirectly(builder))
+      .topology(builder => exercise1.passEventsThroughDirectly(builder))
       .input("text", strings, strings, input)
       .output("pass-through", strings, strings, expected.size)
 
@@ -37,7 +34,7 @@ class Exercise_1_FilterAndTransformTest extends FunSuite with Matchers {
     val expected = List(23, 28, 37, 53)
 
     val result = MockedStreams()
-      .topology(builder => Exercise_1_FilterAndTransform.lineLengths(builder))
+      .topology(builder => exercise1.lineLengths(builder))
       .input("text", strings, strings, input)
       .output("line-lengths", strings, ints, expected.size)
 
@@ -48,7 +45,7 @@ class Exercise_1_FilterAndTransformTest extends FunSuite with Matchers {
     val expected = List(4, 4, 4, 7)
 
     val result = MockedStreams()
-      .topology(builder => Exercise_1_FilterAndTransform.wordsPerLine(builder))
+      .topology(builder => exercise1.wordsPerLine(builder))
       .input("text", strings, strings, input)
       .output("words-per-line", strings, ints, expected.size)
 
@@ -62,7 +59,7 @@ class Exercise_1_FilterAndTransformTest extends FunSuite with Matchers {
     )
 
     val result = MockedStreams()
-      .topology(builder => Exercise_1_FilterAndTransform.linesContainingData(builder))
+      .topology(builder => exercise1.linesContainingData(builder))
       .input("text", strings, strings, input)
       .output("contains-conference", strings, strings, expected.size)
 
@@ -78,7 +75,7 @@ class Exercise_1_FilterAndTransformTest extends FunSuite with Matchers {
     )
 
     val result = MockedStreams()
-      .topology(builder => Exercise_1_FilterAndTransform.allTheWords(builder))
+      .topology(builder => exercise1.allTheWords(builder))
       .input("text", strings, strings, input)
       .output("all-the-words", strings, strings, expected.size)
 
@@ -97,7 +94,7 @@ class Exercise_1_FilterAndTransformTest extends FunSuite with Matchers {
     )
 
     val result = MockedStreams()
-      .topology(builder => Exercise_1_FilterAndTransform.urlsVisited(builder))
+      .topology(builder => exercise1.urlsVisited(builder))
       .input("click-events", strings, json, clickEvents)
       .output("urls-visited", strings, strings, expected.size)
 
@@ -108,7 +105,7 @@ class Exercise_1_FilterAndTransformTest extends FunSuite with Matchers {
     val expected = List(clickEvents(1), clickEvents(4))
 
     val result = MockedStreams()
-      .topology(builder => Exercise_1_FilterAndTransform.articles(builder))
+      .topology(builder => exercise1.articles(builder))
       .input("click-events", strings, json, clickEvents)
       .output("articles", strings, json, expected.size)
 
@@ -122,7 +119,7 @@ class Exercise_1_FilterAndTransformTest extends FunSuite with Matchers {
     )
 
     val result = MockedStreams()
-      .topology(builder => Exercise_1_FilterAndTransform.articleVisits(builder))
+      .topology(builder => exercise1.articleVisits(builder))
       .input("click-events", strings, json, clickEvents)
       .output("article-urls", strings, strings, expected.size)
 
@@ -133,7 +130,7 @@ class Exercise_1_FilterAndTransformTest extends FunSuite with Matchers {
     val expected = List(1500, 23000, 1, 198, 500)
 
     val result = MockedStreams()
-      .topology(builder => Exercise_1_FilterAndTransform.classifiedAdPrices(builder))
+      .topology(builder => exercise1.classifiedAdPrices(builder))
       .input("click-events", strings, json, clickEvents)
       .output("classified-ad-prices", strings, ints, expected.size)
 
@@ -151,7 +148,7 @@ class Exercise_1_FilterAndTransformTest extends FunSuite with Matchers {
     ).map(mapper.readTree)
 
     val result = MockedStreams()
-      .topology(builder => Exercise_1_FilterAndTransform.simplifiedClassifiedAds(builder))
+      .topology(builder => exercise1.simplifiedClassifiedAds(builder))
       .input("click-events", strings, json, clickEvents)
       .output("simplified-classified-ads", strings, json, expected.size)
 
@@ -163,7 +160,7 @@ class Exercise_1_FilterAndTransformTest extends FunSuite with Matchers {
     val expectedAds = List(clickEvents(0), clickEvents(2), clickEvents(3), clickEvents(5), clickEvents(6))
 
     val streams = MockedStreams()
-      .topology(builder => Exercise_1_FilterAndTransform.splitArticlesAndAds(builder))
+      .topology(builder => exercise1.splitArticlesAndAds(builder))
       .input("click-events", strings, json, clickEvents)
 
     val articles = streams.output("articles", strings, json, expectedArticles.size)
@@ -178,7 +175,7 @@ class Exercise_1_FilterAndTransformTest extends FunSuite with Matchers {
     val input = (null, "invalid json") :: clickEvents.map { case (k, v) => (k, v.toString) }
 
     val result =  MockedStreams()
-      .topology(builder => Exercise_1_FilterAndTransform.filterOutInvalidJson(builder))
+      .topology(builder => exercise1.filterOutInvalidJson(builder))
       .input("click-events", strings, strings, input)
       .output("json-events", strings, json, expected.size)
 

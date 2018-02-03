@@ -9,7 +9,7 @@ import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.kstream.{Materialized, Produced, Serialized, TimeWindows}
 import org.apache.kafka.streams.{Consumed, KeyValue, StreamsBuilder}
 
-object Exercise_2_Aggregations {
+class Exercise_2_Aggregations {
 
   private val strings = Serdes.String
   private val ints = Serdes.Integer

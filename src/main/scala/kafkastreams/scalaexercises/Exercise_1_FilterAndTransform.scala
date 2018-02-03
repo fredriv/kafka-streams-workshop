@@ -11,7 +11,7 @@ import org.apache.kafka.streams.{Consumed, StreamsBuilder}
 
 import scala.util.control.NonFatal
 
-object Exercise_1_FilterAndTransform {
+class Exercise_1_FilterAndTransform {
 
   private val strings = Serdes.String
   private val ints = Serdes.Integer

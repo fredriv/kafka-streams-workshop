@@ -25,7 +25,7 @@ public class Exercise_1_FilterAndTransform {
      * Read the Kafka topic 'text' and send the contents directly to
      * the new topic 'pass-through'
      */
-    public static void passEventsThroughDirectly(StreamsBuilder builder) {
+    public void passEventsThroughDirectly(StreamsBuilder builder) {
         KStream<String, String> stream = builder.stream("text", Consumed.with(strings, strings));
         stream.to("pass-through", Produced.with(strings, strings));
     }
@@ -35,7 +35,7 @@ public class Exercise_1_FilterAndTransform {
      * length of that text and send it to the topic 'line-lengths'
      * as a stream of ints
      */
-    public static void lineLengths(StreamsBuilder builder) {
+    public void lineLengths(StreamsBuilder builder) {
 
     }
 
@@ -44,7 +44,7 @@ public class Exercise_1_FilterAndTransform {
      * each line and send that to the topic 'words-per-line' as a
      * stream of ints
      */
-    public static void wordsPerLine(StreamsBuilder builder) {
+    public void wordsPerLine(StreamsBuilder builder) {
 
     }
 
@@ -53,7 +53,7 @@ public class Exercise_1_FilterAndTransform {
      * word 'conference' and send them to the topic
      * 'contains-conference'
      */
-    public static void linesContainingData(StreamsBuilder builder) {
+    public void linesContainingData(StreamsBuilder builder) {
 
     }
 
@@ -61,7 +61,7 @@ public class Exercise_1_FilterAndTransform {
      * Read the Kafka topic 'text', split each line into words and
      * send them individually to the topic 'all-the-words'
      */
-    public static void allTheWords(StreamsBuilder builder) {
+    public void allTheWords(StreamsBuilder builder) {
 
     }
 
@@ -70,7 +70,7 @@ public class Exercise_1_FilterAndTransform {
      * (see 'ClickEvents' class in the 'testdata' package for details)
      * and send the URL as a string to the topic 'urls-visited'
      */
-    public static void urlsVisited(StreamsBuilder builder) {
+    public void urlsVisited(StreamsBuilder builder) {
 
     }
 
@@ -80,7 +80,7 @@ public class Exercise_1_FilterAndTransform {
      * class in the 'testdata' package for details) and send the
      * events unmodified to the topic 'articles' as json
      */
-    public static void articles(StreamsBuilder builder) {
+    public void articles(StreamsBuilder builder) {
 
     }
 
@@ -89,7 +89,7 @@ public class Exercise_1_FilterAndTransform {
      * that are for objects of @type 'Article' and send the object
      * URLs to the topic 'article-urls' as strings
      */
-    public static void articleVisits(StreamsBuilder builder) {
+    public void articleVisits(StreamsBuilder builder) {
 
     }
 
@@ -98,7 +98,7 @@ public class Exercise_1_FilterAndTransform {
      * that are for objects of @type 'ClassifiedAd' and send the
      * object prices to the topic 'classified-ad-prices' as ints
      */
-    public static void classifiedAdPrices(StreamsBuilder builder) {
+    public void classifiedAdPrices(StreamsBuilder builder) {
 
     }
 
@@ -114,7 +114,7 @@ public class Exercise_1_FilterAndTransform {
      * Send the resulting events as json to the topic
      * 'simplified-classified-ads'
      */
-    public static void simplifiedClassifiedAds(StreamsBuilder builder) {
+    public void simplifiedClassifiedAds(StreamsBuilder builder) {
 
     }
 
@@ -129,11 +129,11 @@ public class Exercise_1_FilterAndTransform {
      *
      * Can you think of more than one way to solve it?
      */
-    public static void splitArticlesAndAds(StreamsBuilder builder) {
+    public void splitArticlesAndAds(StreamsBuilder builder) {
 
     }
 
-    public static Predicate<String, JsonNode> objectType(String type) {
+    public Predicate<String, JsonNode> objectType(String type) {
         return (key, json) -> json.path("object").path("@type").asText().equals(type);
     }
 
@@ -145,13 +145,13 @@ public class Exercise_1_FilterAndTransform {
      * You can use the supplied 'tryParseJson' method to handle
      * parsing and error handling.
      */
-    public static void filterOutInvalidJson(StreamsBuilder builder) {
+    public void filterOutInvalidJson(StreamsBuilder builder) {
 
     }
 
-    private static ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper mapper = new ObjectMapper();
 
-    public static Iterable<JsonNode> tryParseJson(String event) {
+    public Iterable<JsonNode> tryParseJson(String event) {
         try {
             return Collections.singletonList(mapper.readTree(event));
         } catch (Exception e) {

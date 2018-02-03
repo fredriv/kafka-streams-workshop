@@ -6,16 +6,13 @@ import java.util.Properties
 import com.fasterxml.jackson.databind.JsonNode
 import com.madewithtea.mockedstreams.MockedStreams
 import kafkastreams.exercises.ClickEvents.clickEvents
-//import kafkastreams.javaexercises.Exercise_2_Aggregations
-import kafkastreams.scalaexercises.Exercise_2_Aggregations
 import kafkastreams.serdes.JsonNodeSerde
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.processor.TimestampExtractor
-import org.scalatest.{FunSuite, Matchers}
 
-class Exercise_2_AggregationsTest extends FunSuite with Matchers {
+class Exercise_2_AggregationsTest extends ExerciseBase {
 
   val strings = Serdes.String()
   val ints = Serdes.Integer()
@@ -35,7 +32,7 @@ class Exercise_2_AggregationsTest extends FunSuite with Matchers {
     )
 
     val result = MockedStreams()
-      .topology(builder => Exercise_2_Aggregations.countColorOccurrences(builder))
+      .topology(builder => exercise2.countColorOccurrences(builder))
       .input("colors", strings, strings, colors)
       .output("color-counts", strings, longs, expected.size)
 
@@ -62,7 +59,7 @@ class Exercise_2_AggregationsTest extends FunSuite with Matchers {
     )
 
     val result = MockedStreams()
-      .topology(builder => Exercise_2_Aggregations.countWordOccurrences(builder))
+      .topology(builder => exercise2.countWordOccurrences(builder))
       .input("hamlet", strings, strings, hamlet)
       .output("word-counts", strings, longs, expected.length)
 
@@ -81,7 +78,7 @@ class Exercise_2_AggregationsTest extends FunSuite with Matchers {
     )
 
     val result = MockedStreams()
-      .topology(builder => Exercise_2_Aggregations.clicksPerSite(builder))
+      .topology(builder => exercise2.clicksPerSite(builder))
       .input("click-events", strings, json, clickEvents)
       .output("clicks-per-site", strings, longs, expected.length)
 
@@ -98,7 +95,7 @@ class Exercise_2_AggregationsTest extends FunSuite with Matchers {
     )
 
     val result = MockedStreams()
-      .topology(builder => Exercise_2_Aggregations.totalClassifiedsPricePerSite(builder))
+      .topology(builder => exercise2.totalClassifiedsPricePerSite(builder))
       .input("click-events", strings, json, clickEvents)
       .output("total-classifieds-price-per-site", strings, ints, expected.length)
 
@@ -112,7 +109,7 @@ class Exercise_2_AggregationsTest extends FunSuite with Matchers {
     conf.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, classOf[PublishedTimestampExtractor].getName)
 
     val stream = MockedStreams()
-      .topology(builder => Exercise_2_Aggregations.clicksPerHour(builder))
+      .topology(builder => exercise2.clicksPerHour(builder))
       .input("click-events", strings, json, clickEvents)
       .stores(Seq("clicks-per-hour"))
       .config(conf)
