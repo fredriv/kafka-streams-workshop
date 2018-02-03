@@ -25,7 +25,7 @@ class Exercise_2_Aggregations {
     */
   def countColorOccurrences(builder: StreamsBuilder): Unit = {
     builder.stream("colors", Consumed.`with`(strings, strings))
-      .groupByS((key, color) => color)
+      .groupByS(value)
       .count
       .toStream
       .toS("color-counts")
@@ -41,31 +41,33 @@ class Exercise_2_Aggregations {
      */
   }
 
+  def value[K, V](key: K, value: V) = value
+
   /**
     * Read the topic 'hamlet' and count the number of occurrences
     * of each word in the text. Write the result to the topic
     * 'word-counts'.
     */
   def countWordOccurrences(builder: StreamsBuilder): Unit = {
-    builder.stream("hamlet", Consumed.`with`(strings, strings))
-      .flatMapValuesS(line => line.split(" "))
-      .mapValuesS(_.toLowerCase)
-      .groupByS((key, word) => word)
+    val lines = builder.stream("hamlet", Consumed.`with`(strings, strings))
+    val words = lines ~>> toWords ~> (_.toLowerCase)
+
+    words.groupByS(value)
       .count
       .toStream
       .toS("word-counts")
 
     /* Alternatively
 
-    builder.stream("hamlet", Consumed.`with`(strings, strings))
-      .flatMapValuesS(line => line.split(" "))
-      .mapS((key, word) => (word.toLowerCase, 1))
+    words.mapS((key, word) => (word, 1))
       .groupByKeyS
       .count
       .toStream
       .toS("word-counts")
-     */
+    */
   }
+
+  def toWords(line: String): Seq[String] = line.split(" ")
 
   /**
     * Read the topic 'click-events' and count the number of events
@@ -74,13 +76,13 @@ class Exercise_2_Aggregations {
     */
   def clicksPerSite(builder: StreamsBuilder): Unit = {
     builder.stream("click-events", Consumed.`with`(strings, json))
-      .selectKey[String]((key, event) => event("provider")("@id").asText())
-      .groupByKeyS
+      .groupByS((key, event) => event("provider")("@id").asText)
       .count
       .toStream
-      .to("clicks-per-site", Produced.`with`(strings, longs))
+      .toS("clicks-per-site")
 
     /* Alternatively
+
     builder.stream("click-events", Consumed.`with`(strings, json))
       .mapS((key, event) => (event("provider")("@id").asText, 1))
       .groupByKeyS
@@ -98,22 +100,23 @@ class Exercise_2_Aggregations {
     * Hint: Use method 'reduce' on the grouped stream.
     */
   def totalClassifiedsPricePerSite(builder: StreamsBuilder): Unit = {
-    val objectPrice = (key: String, event: JsonNode) => (
-      event("provider")("@id").asText,
-      event("object")("price").asInt
+    val priceBySite = (key: String, ad: JsonNode) => (
+      ad("provider")("@id").asText,
+      ad("object")("price").asInt
     )
 
-    builder.stream("click-events", Consumed.`with`(strings, json))
-      .filter(objectType("ClassifiedAd"))
-      .mapS(objectPrice)
+    val clickEvents = builder.stream("click-events", Consumed.`with`(strings, json))
+    val pricesBySite = clickEvents \ objectType("ClassifiedAd") ~> priceBySite
+
+    pricesBySite
       .groupByKeyS
       .reduce((a, b) => a + b)
       .toStream
       .toS("total-classifieds-price-per-site")
   }
 
-  def objectType(`type`: String): Predicate[String, JsonNode] =
-    (key, json) => json.path("object").path("@type").asText == `type`
+  def objectType(`type`: String) =
+    (key: String, event: JsonNode) => event("object")("@type").asText == `type`
 
   /**
     * Read the topic 'pulse-events' and count the number of events
@@ -122,7 +125,7 @@ class Exercise_2_Aggregations {
     */
   def clicksPerHour(builder: StreamsBuilder): Unit = {
     builder.stream("click-events", Consumed.`with`(strings, json))
-      .selectKey[String]((key, json) => json("provider")("@id").asText)
+      .selectKey[String]((key, event) => event("provider")("@id").asText)
       .groupByKeyS
       .windowedBy(TimeWindows.of(TimeUnit.HOURS.toMillis(1)))
       .count(Materialized.as("clicks-per-hour"))

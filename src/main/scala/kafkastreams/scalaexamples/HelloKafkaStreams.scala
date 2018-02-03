@@ -1,16 +1,15 @@
 package kafkastreams.scalaexamples
 
+import kafkastreams.scalautils.KafkaStreamsDSL._
 import org.apache.kafka.common.serialization.Serdes.StringSerde
 import org.apache.kafka.streams.{Consumed, StreamsBuilder, Topology}
-import org.apache.kafka.streams.kstream.Produced
 
 class HelloKafkaStreams extends KafkaStreamsApp {
   def createTopology(builder: StreamsBuilder): Topology = {
-    val strings = new StringSerde
+    implicit val strings = new StringSerde
 
-    builder.stream("names", Consumed.`with`(strings, strings))
-      .mapValues[String](name => s"Hello, $name!")
-      .to("hello", Produced.`with`(strings, strings))
+    val names = builder.stream("names", Consumed.`with`(strings, strings))
+    names ~> (name => s"Hello, $name!") ~> "hello"
 
     builder.build()
   }

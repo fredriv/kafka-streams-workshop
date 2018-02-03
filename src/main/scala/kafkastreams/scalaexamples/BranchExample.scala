@@ -4,7 +4,6 @@ import kafkastreams.scalautils.JacksonDSL._
 import kafkastreams.scalautils.KafkaStreamsDSL._
 import kafkastreams.serdes.JsonNodeSerde
 import org.apache.kafka.common.serialization.Serdes
-import org.apache.kafka.streams.kstream.Produced
 import org.apache.kafka.streams.{Consumed, StreamsBuilder, Topology}
 
 class BranchExample extends KafkaStreamsApp {
@@ -24,14 +23,13 @@ class BranchExample extends KafkaStreamsApp {
 
     val topics = List("BBC-Articles", "CNN-Articles", "FoxNews-Articles", "Other-Articles")
 
-    for ((stream, topic) <- articlesPerSite.zip(topics))
-      stream.to(topic, Produced.`with`(strings, json))
-
-    /* Alternatively, using KafkaStreamsSDL
-
+    /*
     for ((stream, topic) <- articlesPerSite.zip(topics))
       stream.toS(topic)
      */
+
+    for ((stream, topic) <- articlesPerSite.zip(topics))
+      stream ~> topic
 
     builder.build()
   }

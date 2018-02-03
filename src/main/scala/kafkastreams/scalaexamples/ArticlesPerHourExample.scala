@@ -17,18 +17,17 @@ class ArticlesPerHourExample extends KafkaStreamsApp {
 
     val articles = builder.stream("Articles", Consumed.`with`(strings, json))
 
+    /*
     val articlesPerHour = articles
       .groupBy(extractSite, Serialized.`with`(strings, json))
       .windowedBy(TimeWindows.of(TimeUnit.HOURS.toMillis(1)))
       .count(Materialized.as("articles-per-hour"))
-
-    /* Alternatively, using KafkaStreamsDSL:
+     */
 
     val articlesPerHour = articles
       .groupByS(extractSite)
       .windowedBy(TimeWindows.of(TimeUnit.HOURS.toMillis(1)))
       .count(Materialized.as("articles-per-hour"))
-     */
 
     return builder.build
   }

@@ -3,7 +3,6 @@ package kafkastreams.scalaexamples
 import com.fasterxml.jackson.databind.JsonNode
 import kafkastreams.scalautils.JacksonDSL._
 import kafkastreams.scalautils.KafkaStreamsDSL._
-import org.apache.kafka.streams.kstream.{Produced, Serialized}
 import kafkastreams.serdes.JsonNodeSerde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.{Consumed, StreamsBuilder, Topology}
@@ -16,20 +15,19 @@ class ArticleCountExample extends KafkaStreamsApp {
 
     val articles = builder.stream("Articles", Consumed.`with`(strings, json))
 
+    /*
     val articlesPerSite = articles
       .groupBy(extractSite, Serialized.`with`(strings, json))
       .count()
 
     articlesPerSite.toStream().to("ArticleCounts", Produced.`with`(strings, longs))
-
-    /* Alternatively, using KafkaStreamsDSL:
+    */
 
     val articlesPerSite = articles
       .groupByS(extractSite)
       .count()
 
-    articlesPerSite.toStream().toS("ArticleCounts")
-     */
+    articlesPerSite.toStream() ~> "ArticleCounts"
 
     return builder.build
   }
