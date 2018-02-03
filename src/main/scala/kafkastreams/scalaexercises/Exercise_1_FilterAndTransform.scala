@@ -155,9 +155,11 @@ object Exercise_1_FilterAndTransform {
     */
   def splitArticlesAndAds(builder: StreamsBuilder): Unit = {
     val clicks = builder.stream("click-events", Consumed.`with`(strings, json))
-    val branches = clicks.branch(objectType("Article"), objectType("ClassifiedAd"))
-    branches(0).to("articles", Produced.`with`(strings, json))
-    branches(1).to("classified-ads", Produced.`with`(strings, json))
+
+    val Array(articles, classifiedAds) = clicks.branch(objectType("Article"), objectType("ClassifiedAd"))
+
+    articles.to("articles", Produced.`with`(strings, json))
+    classifiedAds.to("classified-ads", Produced.`with`(strings, json))
 
     /*
     clicks.filter(objectType("Article")).to(strings, json, "articles");
