@@ -53,7 +53,7 @@ class Exercise_1_FilterAndTransform {
     * word 'conference' and send them to the topic
     * 'contains-conference'
     */
-  def linesContainingData(builder: StreamsBuilder): Unit = {
+  def linesContainingConference(builder: StreamsBuilder): Unit = {
     builder.stream("text", Consumed.`with`(strings, strings))
       .filter((key, line) => line.contains("conference"))
       .to("contains-conference", Produced.`with`(strings, strings))

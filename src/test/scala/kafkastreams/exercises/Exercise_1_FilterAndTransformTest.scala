@@ -59,7 +59,7 @@ class Exercise_1_FilterAndTransformTest extends ExerciseBase {
     )
 
     val result = MockedStreams()
-      .topology(builder => exercise1.linesContainingData(builder))
+      .topology(builder => exercise1.linesContainingConference(builder))
       .input("text", strings, strings, input)
       .output("contains-conference", strings, strings, expected.size)
 
