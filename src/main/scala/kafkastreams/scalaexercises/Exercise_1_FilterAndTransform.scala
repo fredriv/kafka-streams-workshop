@@ -162,8 +162,8 @@ class Exercise_1_FilterAndTransform {
     classifiedAds.to("classified-ads", Produced.`with`(strings, json))
 
     /*
-    clicks.filter(objectType("Article")).to(strings, json, "articles");
-    clicks.filter(objectType("ClassifiedAd")).to(strings, json, "classified-ads");
+    clicks.filter(objectType("Article")).to("articles", Produced.`with`(strings, json));
+    clicks.filter(objectType("ClassifiedAd")).to("classified-ads", Produced.`with`(strings, json));
     */
   }
 

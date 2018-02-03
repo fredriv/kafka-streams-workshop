@@ -23,11 +23,19 @@ class Exercise_2_Aggregations {
   def countColorOccurrences(builder: StreamsBuilder): Unit = {
     builder.stream("colors", Consumed.`with`(strings, strings))
       .groupBy((key: String, color: String) => color, Serialized.`with`(strings, strings))
-//      .map[String, Integer]((key, color) => KeyValue.pair(color, 1))
-//      .groupByKey(Serialized.`with`(strings, ints))
       .count
       .toStream
       .to("color-counts", Produced.`with`(strings, longs))
+
+    /* Alternatively
+
+    builder.stream("colors", Consumed.`with`(strings, strings))
+      .map[String, Integer]((key, color) => KeyValue.pair(color, 1))
+      .groupByKey(Serialized.`with`(strings, ints))
+      .count
+      .toStream
+      .to("color-counts", Produced.`with`(strings, longs))
+     */
   }
 
   /**
@@ -40,11 +48,20 @@ class Exercise_2_Aggregations {
       .flatMapValues[String](line => util.Arrays.asList(line.split(" "): _*))
       .mapValues[String](_.toLowerCase)
       .groupBy((key: String, word: String) => word, Serialized.`with`(strings, strings))
-//      .map[String, Integer]((key: String, word: String) => KeyValue.pair(word.toLowerCase, 1))
-//      .groupByKey(Serialized.`with`(strings, ints))
       .count
       .toStream
       .to("word-counts", Produced.`with`(strings, longs))
+
+    /* Alternatively
+
+    builder.stream("hamlet", Consumed.`with`(strings, strings))
+      .flatMapValues[String](line => util.Arrays.asList(line.split(" "): _*))
+      .map[String, Integer]((key, word) => KeyValue.pair(word.toLowerCase, 1))
+      .groupByKey(Serialized.`with`(strings, ints))
+      .count
+      .toStream
+      .to("word-counts", Produced.`with`(strings, longs))
+     */
   }
 
   /**
@@ -54,13 +71,21 @@ class Exercise_2_Aggregations {
     */
   def clicksPerSite(builder: StreamsBuilder): Unit = {
     builder.stream("click-events", Consumed.`with`(strings, json))
-      .selectKey[String]((key: String, json: JsonNode) => json.path("provider").path("@id").asText())
+      .selectKey[String]((key, json) => json.path("provider").path("@id").asText())
       .groupByKey(Serialized.`with`(strings, json))
-//      .map[String, Integer]((key: String, json: JsonNode) => KeyValue.pair(json.path("provider").path("@id").asText, 1))
-//      .groupByKey(Serialized.`with`(strings, ints))
       .count
       .toStream
       .to("clicks-per-site", Produced.`with`(strings, longs))
+
+    /* Alternatively
+
+    builder.stream("click-events", Consumed.`with`(strings, json))
+      .map[String, Integer]((key, json) => KeyValue.pair(json.path("provider").path("@id").asText, 1))
+      .groupByKey(Serialized.`with`(strings, ints))
+      .count
+      .toStream
+      .to("clicks-per-site", Produced.`with`(strings, longs))
+     */
   }
 
   /**
@@ -73,12 +98,12 @@ class Exercise_2_Aggregations {
   def totalClassifiedsPricePerSite(builder: StreamsBuilder): Unit = {
     builder.stream("click-events", Consumed.`with`(strings, json))
       .filter(objectType("ClassifiedAd"))
-      .map[String, Integer]((key: String, json: JsonNode) => KeyValue.pair(
+      .map[String, Integer]((key, json) => KeyValue.pair(
         json.path("provider").path("@id").asText,
         json.path("object").path("price").asInt)
       )
       .groupByKey(Serialized.`with`(strings, ints))
-      .reduce((a: Integer, b: Integer) => a + b)
+      .reduce((a, b) => a + b)
       .toStream
       .to("total-classifieds-price-per-site", Produced.`with`(strings, ints))
   }
@@ -93,7 +118,7 @@ class Exercise_2_Aggregations {
     */
   def clicksPerHour(builder: StreamsBuilder): Unit = {
     builder.stream("click-events", Consumed.`with`(strings, json))
-      .selectKey[String]((key: String, json: JsonNode) => json.path("provider").path("@id").asText)
+      .selectKey[String]((key, json) => json.path("provider").path("@id").asText)
       .groupByKey(Serialized.`with`(strings, json))
       .windowedBy(TimeWindows.of(TimeUnit.HOURS.toMillis(1)))
       .count(Materialized.as("clicks-per-hour"))
