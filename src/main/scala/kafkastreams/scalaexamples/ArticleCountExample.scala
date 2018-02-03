@@ -1,16 +1,18 @@
 package kafkastreams.scalaexamples
 
 import com.fasterxml.jackson.databind.JsonNode
+import kafkastreams.scalautils.JacksonDSL._
+import kafkastreams.scalautils.KafkaStreamsDSL._
+import org.apache.kafka.streams.kstream.{Produced, Serialized}
 import kafkastreams.serdes.JsonNodeSerde
 import org.apache.kafka.common.serialization.Serdes
-import org.apache.kafka.streams.kstream.{Produced, Serialized}
 import org.apache.kafka.streams.{Consumed, StreamsBuilder, Topology}
 
 class ArticleCountExample extends KafkaStreamsApp {
   def createTopology(builder: StreamsBuilder): Topology = {
-    val strings = new Serdes.StringSerde
-    val longs = new Serdes.LongSerde
-    val json = new JsonNodeSerde
+    implicit val strings = new Serdes.StringSerde
+    implicit val longs = new Serdes.LongSerde
+    implicit val json = new JsonNodeSerde
 
     val articles = builder.stream("Articles", Consumed.`with`(strings, json))
 
@@ -20,10 +22,19 @@ class ArticleCountExample extends KafkaStreamsApp {
 
     articlesPerSite.toStream().to("ArticleCounts", Produced.`with`(strings, longs))
 
+    /* Alternatively, using KafkaStreamsDSL:
+
+    val articlesPerSite = articles
+      .groupByS(extractSite)
+      .count()
+
+    articlesPerSite.toStream().toS("ArticleCounts")
+     */
+
     return builder.build
   }
 
-  private def extractSite(key: String, value: JsonNode) = value.path("site").asText()
+  private def extractSite(key: String, article: JsonNode) = article("site").asText
 }
 
 object ArticleCountExample extends App {

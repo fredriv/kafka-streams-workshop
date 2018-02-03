@@ -1,15 +1,14 @@
 package kafkastreams.scalaexercises
 
 import java.util
-import java.util.Arrays
 import java.util.concurrent.TimeUnit
 
 import com.fasterxml.jackson.databind.JsonNode
 import kafkastreams.scalaexercises.Exercise_1_FilterAndTransform.objectType
 import kafkastreams.serdes.JsonNodeSerde
-import org.apache.kafka.common.serialization.{Serde, Serdes}
-import org.apache.kafka.streams.{Consumed, KeyValue, StreamsBuilder}
+import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.kstream.{Materialized, Produced, Serialized, TimeWindows}
+import org.apache.kafka.streams.{Consumed, KeyValue, StreamsBuilder}
 
 object Exercise_2_Aggregations {
 
