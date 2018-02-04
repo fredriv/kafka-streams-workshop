@@ -43,8 +43,11 @@ public class ArticlesPerHourExample extends KafkaStreamsApp {
 
         KStream<String, JsonNode> articles = builder.stream("Articles", Consumed.with(strings, json));
 
-        KTable<Windowed<String>, Long> articlesPerHour = articles
-                .groupBy((key, value) -> value.path("site").asText(), Serialized.with(strings, json))
+        KGroupedStream<String, JsonNode> grouped = articles
+                .groupBy((key, value) -> value.path("site").asText(),
+                        Serialized.with(strings, json));
+
+        KTable<Windowed<String>, Long> articlesPerHour = grouped
                 .windowedBy(TimeWindows.of(TimeUnit.HOURS.toMillis(1)))
                 .count(Materialized.as("articles-per-hour"));
 
