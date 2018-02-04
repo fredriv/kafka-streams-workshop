@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class ArticlesPerHourExample extends KafkaStreamsApp {
 
     public static void main(String[] args) throws InterruptedException {
-        KafkaStreams streams = new BranchExample().start("articles-per-hour-app");
+        KafkaStreams streams = new ArticlesPerHourExample().start("articles-per-hour-app");
 
         Thread.sleep(1000);
 

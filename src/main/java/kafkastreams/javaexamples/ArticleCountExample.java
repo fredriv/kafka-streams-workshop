@@ -12,7 +12,7 @@ import org.apache.kafka.streams.kstream.*;
 public class ArticleCountExample extends KafkaStreamsApp {
 
     public static void main(String[] args) {
-        new BranchExample().start("article-count-app");
+        new ArticleCountExample().start("article-count-app");
     }
 
     public Topology createTopology(StreamsBuilder builder) {
