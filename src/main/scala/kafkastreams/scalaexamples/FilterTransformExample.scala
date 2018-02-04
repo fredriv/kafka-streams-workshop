@@ -7,6 +7,10 @@ import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.kstream.Produced
 import org.apache.kafka.streams.{Consumed, StreamsBuilder, Topology}
 
+object FilterTransformExample extends App {
+  new FilterTransformExample().start("filter-transform-example")
+}
+
 class FilterTransformExample extends KafkaStreamsApp {
   def createTopology(builder: StreamsBuilder): Topology = {
     implicit val strings = new Serdes.StringSerde
@@ -31,8 +35,4 @@ class FilterTransformExample extends KafkaStreamsApp {
 
     return builder.build
   }
-}
-
-object FilterTransformExample extends App {
-  new FilterTransformExample().start("filter-transform-example")
 }

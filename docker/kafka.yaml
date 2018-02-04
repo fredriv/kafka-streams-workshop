@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  zk:
+    image: "confluentinc/cp-zookeeper:latest"
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 32181
+      ZOOKEEPER_TICK_TIME: 2000
+    expose:
+      - 32181
+    ports:
+      - 32181:32181
+    extra_hosts:
+      - "moby:127.0.0.1"
+
+  kafka:
+    image: "confluentinc/cp-kafka:latest"
+    restart: always
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zk:32181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - 29092:29092
+    depends_on:
+      - zk
+    extra_hosts:
+      - "moby:127.0.0.1"
+    links:
+      - zk
