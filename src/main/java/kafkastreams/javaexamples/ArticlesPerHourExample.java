@@ -5,21 +5,36 @@ import kafkastreams.serdes.JsonNodeSerde;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.Consumed;
+import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.KTable;
-import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.Serialized;
-import org.apache.kafka.streams.kstream.TimeWindows;
-import org.apache.kafka.streams.kstream.Windowed;
+import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.QueryableStoreTypes;
+import org.apache.kafka.streams.state.ReadOnlyWindowStore;
+import org.apache.kafka.streams.state.WindowStoreIterator;
 
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 public class ArticlesPerHourExample extends KafkaStreamsApp {
 
-    public static void main(String[] args) {
-        new BranchExample().start("articles-per-hour-app");
+    public static void main(String[] args) throws InterruptedException {
+        KafkaStreams streams = new BranchExample().start("articles-per-hour-app");
+
+        Thread.sleep(1000);
+
+        ReadOnlyWindowStore<String, Long> articlesPerHour =
+                streams.store("articles-per-hour", QueryableStoreTypes.windowStore());
+
+        long from = 0L; // Jan 1st 1970
+        long to = System.currentTimeMillis();
+        WindowStoreIterator<Long> articles = articlesPerHour.fetch("bbc", from, to);
+
+        articles.forEachRemaining(kv -> {
+            Instant timestamp = Instant.ofEpochMilli(kv.key);
+            System.out.println("BBC published " + kv.value +
+                    " articles in hour " + timestamp);
+        });
     }
 
     public Topology createTopology(StreamsBuilder builder) {
