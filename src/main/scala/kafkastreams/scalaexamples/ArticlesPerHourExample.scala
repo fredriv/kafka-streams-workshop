@@ -43,6 +43,8 @@ class ArticlesPerHourExample extends KafkaStreamsApp {
 
     /* Alternatively, using KafkaStreamsDSL:
 
+    val articles = builder.streamS[String, JsonNode]("Articles")
+
     val articlesPerHour = articles
       .groupByS(extractSite)
       .windowedBy(TimeWindows.of(TimeUnit.HOURS.toMillis(1)))

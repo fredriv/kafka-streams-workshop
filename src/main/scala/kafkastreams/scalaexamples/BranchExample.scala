@@ -15,7 +15,7 @@ class BranchExample extends KafkaStreamsApp {
 
     val articles = builder.stream("Articles", Consumed.`with`(strings, json))
 
-    val articlesPerSite = articles.branchS(
+    val articlesPerSite = articles.branch(
       (key, article) => article("site").asText == "bbc",
       (key, article) => article("site").asText == "cnn",
       (key, article) => article("site").asText == "foxnews",
@@ -28,6 +28,10 @@ class BranchExample extends KafkaStreamsApp {
       stream.to(topic, Produced.`with`(strings, json))
 
     /* Alternatively, using KafkaStreamsSDL
+
+    val articles = builder.streamS[String, JsonNode]("Articles")
+
+    ...
 
     for ((stream, topic) <- articlesPerSite.zip(topics))
       stream.toS(topic)

@@ -1,7 +1,7 @@
 package kafkastreams.scalautils
 
 import org.apache.kafka.common.serialization.Serde
-import org.apache.kafka.streams.KeyValue
+import org.apache.kafka.streams.{Consumed, KeyValue, StreamsBuilder}
 import org.apache.kafka.streams.kstream.{KGroupedStream, KStream, Predicate, Produced, Serialized}
 
 import scala.collection.JavaConverters._
@@ -10,8 +10,8 @@ import scala.collection.JavaConverters._
   * DSL to improve Kafka Streams usage from Scala.
   *
   * By using the DSL, you no longer need to specify the key and value
-  * Serdes with Produced or Serialized if the necessary Serdes are
-  * implicitly available.
+  * Serdes with Consumed, Produced or Serialized if the necessary
+  * Serdes are implicitly available.
   *
   * The other methods allow the use of regular Scala functions in place
   * of ValueMapper, Predicate etc., and also remove the need to specify
@@ -25,6 +25,11 @@ import scala.collection.JavaConverters._
   *   '~>>' instead of flatMapValuesS
   */
 object KafkaStreamsDSL {
+
+  implicit class RichStreamBuilder(builder: StreamsBuilder) {
+    def streamS[K, V](topic: String)(implicit keySerde: Serde[K], valSerde: Serde[V]): KStream[K, V] =
+      builder.stream(topic, Consumed.`with`(keySerde, valSerde))
+  }
 
   implicit class RichKStream[K, V](stream: KStream[K, V]) {
     def toS(topic: String)(implicit keySerde: Serde[K], valSerde: Serde[V]): Unit =
