@@ -7,13 +7,17 @@ import kafkastreams.serdes.JsonNodeSerde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.{Consumed, StreamsBuilder, Topology}
 
+object ArticleCountExample extends App {
+  new ArticleCountExample().start("article-count-app")
+}
+
 class ArticleCountExample extends KafkaStreamsApp {
   def createTopology(builder: StreamsBuilder): Topology = {
     implicit val strings = new Serdes.StringSerde
     implicit val longs = new Serdes.LongSerde
     implicit val json = new JsonNodeSerde
 
-    val articles = builder.stream("Articles", Consumed.`with`(strings, json))
+    val articles = builder.streamS[String, JsonNode]("Articles")
 
     /*
     val articlesPerSite = articles
@@ -33,8 +37,4 @@ class ArticleCountExample extends KafkaStreamsApp {
   }
 
   private def extractSite(key: String, article: JsonNode) = article("site").asText
-}
-
-object ArticleCountExample extends App {
-  new ArticleCountExample().start("article-count-app")
 }

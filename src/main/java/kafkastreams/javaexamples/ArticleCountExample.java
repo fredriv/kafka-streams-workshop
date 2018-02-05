@@ -7,15 +7,12 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.Consumed;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.KTable;
-import org.apache.kafka.streams.kstream.Produced;
-import org.apache.kafka.streams.kstream.Serialized;
+import org.apache.kafka.streams.kstream.*;
 
 public class ArticleCountExample extends KafkaStreamsApp {
 
     public static void main(String[] args) {
-        new BranchExample().start("article-count-app");
+        new ArticleCountExample().start("article-count-app");
     }
 
     public Topology createTopology(StreamsBuilder builder) {
@@ -25,9 +22,11 @@ public class ArticleCountExample extends KafkaStreamsApp {
 
         KStream<String, JsonNode> articles = builder.stream("Articles", Consumed.with(strings, json));
 
-        KTable<String, Long> counts = articles
-                .groupBy((key, value) -> value.path("site").asText(), Serialized.with(strings, json))
-                .count();
+        KGroupedStream<String, JsonNode> grouped = articles
+                .groupBy((key, value) -> value.path("site").asText(),
+                        Serialized.with(strings, json));
+
+        KTable<String, Long> counts = grouped.count();
 
         counts.toStream().to("ArticleCounts", Produced.with(strings, longs));
 

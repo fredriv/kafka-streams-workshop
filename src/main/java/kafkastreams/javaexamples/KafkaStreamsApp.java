@@ -1,9 +1,9 @@
 package kafkastreams.javaexamples;
 
-import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.StreamsConfig;
-import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.*;
+import org.apache.kafka.streams.state.QueryableStoreTypes;
+import org.apache.kafka.streams.state.ReadOnlyWindowStore;
+import org.apache.kafka.streams.state.WindowStoreIterator;
 
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -12,7 +12,7 @@ abstract class KafkaStreamsApp {
 
     public abstract Topology createTopology(StreamsBuilder builder);
 
-    public void start(String applicationId) {
+    public KafkaStreams start(String applicationId) {
         Properties config = new Properties();
         config.put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId);
         config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");
@@ -26,5 +26,7 @@ abstract class KafkaStreamsApp {
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
                 streams.close(10, TimeUnit.SECONDS)
         ));
+
+        return streams;
     }
 }

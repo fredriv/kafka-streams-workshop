@@ -1,5 +1,6 @@
 package kafkastreams.scalaexamples
 
+import com.fasterxml.jackson.databind.JsonNode
 import kafkastreams.scalautils.JacksonDSL._
 import kafkastreams.scalautils.KafkaStreamsDSL._
 import kafkastreams.serdes.JsonNodeSerde
@@ -12,9 +13,9 @@ class BranchExample extends KafkaStreamsApp {
     implicit val strings = new Serdes.StringSerde
     implicit val json = new JsonNodeSerde
 
-    val articles = builder.stream("Articles", Consumed.`with`(strings, json))
+    val articles = builder.streamS[String, JsonNode]("Articles")
 
-    val articlesPerSite = articles.branchS(
+    val articlesPerSite = articles.branch(
       (key, article) => article("site").asText == "bbc",
       (key, article) => article("site").asText == "cnn",
       (key, article) => article("site").asText == "foxnews",
