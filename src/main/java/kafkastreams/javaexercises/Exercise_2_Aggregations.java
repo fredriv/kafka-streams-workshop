@@ -60,7 +60,7 @@ public class Exercise_2_Aggregations {
     }
 
     /**
-     * Read the topic 'pulse-events' and count the number of events
+     * Read the topic 'click-events' and count the number of events
      * per site (field 'provider.@id') per hour. Write the results to
      * the state store 'clicks-per-hour'.
      */
