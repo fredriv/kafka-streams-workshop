@@ -1,5 +1,6 @@
 package kafkastreams.scalaexamples
 
+import com.fasterxml.jackson.databind.JsonNode
 import kafkastreams.scalautils.JacksonDSL._
 import kafkastreams.scalautils.KafkaStreamsDSL._
 import kafkastreams.serdes.JsonNodeSerde
@@ -19,7 +20,6 @@ class FilterTransformExample extends KafkaStreamsApp {
     val articles = builder.stream("Articles", Consumed.`with`(strings, json))
 
     val bbcArticles = articles.filter((key, article) => article("site").asText == "bbc")
-
     val bbcTitles = bbcArticles.mapValues[String](article => article("title").asText)
 
     bbcArticles.to("BBC-Articles", Produced.`with`(strings, json))
@@ -27,6 +27,9 @@ class FilterTransformExample extends KafkaStreamsApp {
 
     /* Alternatively, using KafkaStreamsDSL
 
+    val articles = builder.streamS[String, JsonNode]("Articles")
+
+    val bbcArticles = articles.filter((key, article) => article("site").asText == "bbc")
     val bbcTitles = bbcArticles.mapValuesS(article => article("title").asText)
 
     bbcArticles.toS("BBC-Articles")

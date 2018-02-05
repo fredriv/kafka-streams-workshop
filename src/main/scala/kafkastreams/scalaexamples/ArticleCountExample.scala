@@ -28,6 +28,8 @@ class ArticleCountExample extends KafkaStreamsApp {
 
     /* Alternatively, using KafkaStreamsDSL:
 
+    val articles = builder.streamS[String, JsonNode]("Articles")
+
     val articlesPerSite = articles
       .groupByS(extractSite)
       .count()
