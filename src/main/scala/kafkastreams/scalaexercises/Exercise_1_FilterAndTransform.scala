@@ -118,7 +118,8 @@ class Exercise_1_FilterAndTransform {
 
   /**
     * Read the Kafka topic 'click-events' as json and convert the
-    * classified ad events to a simplified format using JSTL:
+    * classified ad events to a simplified format using Jackson
+    * objectMapper (below) to create a new JSON object:
     *
     * {
     * "title": "The object name",
@@ -141,6 +142,8 @@ class Exercise_1_FilterAndTransform {
       .mapValues[JsonNode](simplifiedClassifiedAd)
       .to("simplified-classified-ads", Produced.`with`(strings, json))
   }
+
+  private val mapper = new ObjectMapper
 
   /**
     * Read the Kafka topic 'click-events' as json and split it into
@@ -185,8 +188,6 @@ class Exercise_1_FilterAndTransform {
       .flatMapValues[JsonNode](tryParseJson)
       .to("json-events", Produced.`with`(strings, json))
   }
-
-  private val mapper = new ObjectMapper
 
   def tryParseJson(event: String) = try {
     Collections.singletonList(mapper.readTree(event))
