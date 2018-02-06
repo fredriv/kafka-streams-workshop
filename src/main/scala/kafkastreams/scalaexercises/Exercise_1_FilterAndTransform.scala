@@ -22,7 +22,8 @@ class Exercise_1_FilterAndTransform {
     * the new topic 'pass-through'
     */
   def passEventsThroughDirectly(builder: StreamsBuilder): Unit = {
-
+    builder.stream("text", Consumed.`with`(strings, strings))
+      .to("pass-through", Produced.`with`(strings, strings))
   }
 
   /**
@@ -99,8 +100,8 @@ class Exercise_1_FilterAndTransform {
 
   /**
     * Read the Kafka topic 'click-events' as json and convert the
-    * classified ad events to a simplified format using Jackson
-    * objectMapper (below) to create a new JSON object:
+    * classified ad events to a simplified format using the provided
+    * ValueMapper 'toSimplifiedAd' below:
     *
     * {
     * "title": "The object name",
@@ -115,6 +116,11 @@ class Exercise_1_FilterAndTransform {
   }
 
   private val mapper = new ObjectMapper
+
+  private val toSimplifiedAd: ValueMapper[JsonNode, JsonNode] =
+    ad => mapper.createObjectNode()
+      .put("title", ad.path("object").path("name").asText)
+      .put("price", ad.path("object").path("price").asInt)
 
   /**
     * Read the Kafka topic 'click-events' as json and split it into
