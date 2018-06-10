@@ -10,7 +10,7 @@ repositories {
 
 dependencies {
 	compile 'org.apache.kafka:kafka-streams:1.0.0'
-	compile 'org.scala-lang:scala-library:2.12.4'
+	compile 'org.scala-lang:scala-library:2.12.6'
 
 	testCompile 'org.scalatest:scalatest_2.12:3.0.4'
 	testCompile 'com.madewithtea:mockedstreams_2.12:1.5.0'
