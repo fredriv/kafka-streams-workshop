@@ -22,8 +22,7 @@ class Exercise_1_FilterAndTransform {
     * the new topic 'pass-through'
     */
   def passEventsThroughDirectly(builder: StreamsBuilder): Unit = {
-    builder.stream("text", Consumed.`with`(strings, strings))
-      .to("pass-through", Produced.`with`(strings, strings))
+
   }
 
   /**
