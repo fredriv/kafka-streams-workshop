@@ -9,8 +9,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.processor.TimestampExtractor
 
-//import kafkastreams.javaexamples.ArticlesPerHourExample
-import kafkastreams.scalaexamples.ArticlesPerHourExample
+import kafkastreams.javaexamples.ArticlesPerHourExample
+//import kafkastreams.scalaexamples.ArticlesPerHourExample
 import org.scalatest.{FlatSpec, Matchers}
 
 class ArticlesPerHourTest extends FlatSpec with Matchers with ArticlesTestBase {

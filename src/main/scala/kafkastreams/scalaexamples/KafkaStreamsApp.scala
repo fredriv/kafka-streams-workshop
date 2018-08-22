@@ -3,7 +3,8 @@ package kafkastreams.scalaexamples
 import java.util.Properties
 import java.util.concurrent.TimeUnit
 
-import org.apache.kafka.streams.{KafkaStreams, StreamsBuilder, StreamsConfig, Topology}
+import org.apache.kafka.streams.{KafkaStreams, StreamsConfig, Topology}
+import org.apache.kafka.streams.scala.StreamsBuilder
 
 trait KafkaStreamsApp {
 

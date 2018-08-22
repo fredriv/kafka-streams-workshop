@@ -1,21 +1,16 @@
 package kafkastreams.scalaexercises
 
-import java.util
-import java.util.Collections
-
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import kafkastreams.serdes.JsonNodeSerde
-import org.apache.kafka.common.serialization.Serdes
-import org.apache.kafka.streams.kstream.{Predicate, Produced, ValueMapper}
-import org.apache.kafka.streams.{Consumed, StreamsBuilder}
+import org.apache.kafka.streams.scala.ImplicitConversions._
+import org.apache.kafka.streams.scala.Serdes.{Integer, String}
+import org.apache.kafka.streams.scala.StreamsBuilder
 
 import scala.util.control.NonFatal
 
 class Exercise_1_FilterAndTransform {
 
-  private val strings = Serdes.String
-  private val ints = Serdes.Integer
-  private val json = new JsonNodeSerde
+  private implicit val json = new JsonNodeSerde
 
   /**
     * Read the Kafka topic 'text' and send the contents directly to
@@ -116,7 +111,7 @@ class Exercise_1_FilterAndTransform {
 
   private val mapper = new ObjectMapper
 
-  private val toSimplifiedAd: ValueMapper[JsonNode, JsonNode] =
+  private val toSimplifiedAd: JsonNode => JsonNode =
     ad => mapper.createObjectNode()
       .put("title", ad.path("object").path("name").asText)
       .put("price", ad.path("object").path("price").asInt)
@@ -136,8 +131,8 @@ class Exercise_1_FilterAndTransform {
 
   }
 
-  def objectType(`type`: String): Predicate[String, JsonNode] =
-    (key, json) => json.path("object").path("@type").asText == `type`
+  def objectType(`type`: String) =
+    (key: String, json: JsonNode) => json.path("object").path("@type").asText == `type`
 
   /**
     * Read the Kafka topic 'click-events' as strings and filter out
@@ -151,10 +146,10 @@ class Exercise_1_FilterAndTransform {
 
   }
 
-  def tryParseJson(event: String) = try {
-    Collections.singletonList(mapper.readTree(event))
+  def tryParseJson = (event: String) => try {
+    List(mapper.readTree(event))
   } catch {
-    case NonFatal(ex) => Collections.emptyList
+    case NonFatal(ex) => Nil
   }
 
 }

@@ -1,8 +1,8 @@
 package kafkastreams.examples
 
 import com.madewithtea.mockedstreams.MockedStreams
-//import kafkastreams.javaexamples.HelloKafkaStreams
-import kafkastreams.scalaexamples.HelloKafkaStreams
+import kafkastreams.javaexamples.HelloKafkaStreams
+//import kafkastreams.scalaexamples.HelloKafkaStreams
 import org.apache.kafka.common.serialization.Serdes.StringSerde
 import org.scalatest.{FlatSpec, Matchers}
 

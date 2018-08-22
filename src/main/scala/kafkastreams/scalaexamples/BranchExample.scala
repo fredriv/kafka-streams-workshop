@@ -1,19 +1,19 @@
 package kafkastreams.scalaexamples
 
+import com.fasterxml.jackson.databind.JsonNode
 import kafkastreams.scalautils.JacksonDSL._
-import kafkastreams.scalautils.KafkaStreamsDSL._
 import kafkastreams.serdes.JsonNodeSerde
-import org.apache.kafka.common.serialization.Serdes
-import org.apache.kafka.streams.kstream.Produced
-import org.apache.kafka.streams.{Consumed, StreamsBuilder, Topology}
+import org.apache.kafka.streams.Topology
+import org.apache.kafka.streams.scala.ImplicitConversions._
+import org.apache.kafka.streams.scala.Serdes.String
+import org.apache.kafka.streams.scala.StreamsBuilder
 
 class BranchExample extends KafkaStreamsApp {
 
   def createTopology(builder: StreamsBuilder): Topology = {
-    implicit val strings = new Serdes.StringSerde
     implicit val json = new JsonNodeSerde
 
-    val articles = builder.stream("Articles", Consumed.`with`(strings, json))
+    val articles = builder.stream[String, JsonNode]("Articles")
 
     val articlesPerSite = articles.branch(
       (key, article) => article("site").asText == "bbc",
@@ -25,17 +25,7 @@ class BranchExample extends KafkaStreamsApp {
     val topics = List("BBC-Articles", "CNN-Articles", "FoxNews-Articles", "Other-Articles")
 
     for ((stream, topic) <- articlesPerSite.zip(topics))
-      stream.to(topic, Produced.`with`(strings, json))
-
-    /* Alternatively, using KafkaStreamsSDL
-
-    val articles = builder.streamS[String, JsonNode]("Articles")
-
-    ...
-
-    for ((stream, topic) <- articlesPerSite.zip(topics))
-      stream.toS(topic)
-     */
+      stream.to(topic)
 
     builder.build()
   }
