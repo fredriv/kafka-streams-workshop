@@ -9,11 +9,12 @@ repositories {
 }
 
 dependencies {
-	compile 'org.apache.kafka:kafka-streams:1.0.1'
+	compile 'org.apache.kafka:kafka-streams:2.0.0'
+	compile 'org.apache.kafka:kafka-streams-scala_2.12:2.0.0'
 	compile 'org.scala-lang:scala-library:2.12.6'
 
 	testCompile 'org.scalatest:scalatest_2.12:3.0.5'
-	testCompile 'com.madewithtea:mockedstreams_2.12:1.6.0'
+	testCompile 'com.madewithtea:mockedstreams_2.12:2.0.0'
 	testRuntime 'org.pegdown:pegdown:1.4.2' // required by gradle-scalatest
 }
 

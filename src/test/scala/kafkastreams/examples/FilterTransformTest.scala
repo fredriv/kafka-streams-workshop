@@ -2,8 +2,8 @@ package kafkastreams.examples
 
 import com.madewithtea.mockedstreams.MockedStreams
 
-//import kafkastreams.javaexamples.FilterTransformExample
-import kafkastreams.scalaexamples.FilterTransformExample
+import kafkastreams.javaexamples.FilterTransformExample
+//import kafkastreams.scalaexamples.FilterTransformExample
 import org.scalatest.{FlatSpec, Matchers}
 
 class FilterTransformTest extends FlatSpec with Matchers with ArticlesTestBase {

@@ -2,8 +2,8 @@ package kafkastreams.examples
 
 import com.madewithtea.mockedstreams.MockedStreams
 
-//import kafkastreams.javaexamples.ArticleCountExample
-import kafkastreams.scalaexamples.ArticleCountExample
+import kafkastreams.javaexamples.ArticleCountExample
+//import kafkastreams.scalaexamples.ArticleCountExample
 import org.scalatest.{FlatSpec, Matchers}
 
 class ArticleCountTest extends FlatSpec with Matchers with ArticlesTestBase {

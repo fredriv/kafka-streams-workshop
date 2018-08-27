@@ -1,40 +1,37 @@
 package kafkastreams.scalaexercises
 
-import java.util
 import java.util.concurrent.TimeUnit
 
 import com.fasterxml.jackson.databind.JsonNode
 import kafkastreams.serdes.JsonNodeSerde
-import org.apache.kafka.common.serialization.Serdes
-import org.apache.kafka.streams.kstream.{Materialized, Predicate, Produced, Serialized, TimeWindows}
-import org.apache.kafka.streams.{Consumed, KeyValue, StreamsBuilder}
+import org.apache.kafka.streams.kstream.{Materialized, TimeWindows}
+import org.apache.kafka.streams.scala.ImplicitConversions._
+import org.apache.kafka.streams.scala.Serdes.{Integer, Long, String}
+import org.apache.kafka.streams.scala.StreamsBuilder
 
 class Exercise_2_Aggregations {
 
-  private val strings = Serdes.String
-  private val ints = Serdes.Integer
-  private val longs = Serdes.Long
-  private val json = new JsonNodeSerde
+  private implicit val json = new JsonNodeSerde
 
   /**
     * Read the topic 'colors' and count the number of occurrences of
     * each color. Write the result to the topic 'color-counts'.
     */
   def countColorOccurrences(builder: StreamsBuilder): Unit = {
-    builder.stream("colors", Consumed.`with`(strings, strings))
-      .groupBy((key: String, color: String) => color, Serialized.`with`(strings, strings))
+    builder.stream[String, String]("colors")
+      .groupBy((key: String, color: String) => color)
       .count
       .toStream
-      .to("color-counts", Produced.`with`(strings, longs))
+      .to("color-counts")
 
     /* Alternatively
 
-    builder.stream("colors", Consumed.`with`(strings, strings))
-      .map[String, Integer]((key, color) => KeyValue.pair(color, 1))
-      .groupByKey(Serialized.`with`(strings, ints))
+    builder.stream("colors")
+      .map((key, color) => (color, 1))
+      .groupByKey
       .count
       .toStream
-      .to("color-counts", Produced.`with`(strings, longs))
+      .to("color-counts")
      */
   }
 
@@ -44,23 +41,23 @@ class Exercise_2_Aggregations {
     * 'word-counts'.
     */
   def countWordOccurrences(builder: StreamsBuilder): Unit = {
-    builder.stream("hamlet", Consumed.`with`(strings, strings))
-      .flatMapValues[String](line => util.Arrays.asList(line.split(" "): _*))
-      .mapValues[String](_.toLowerCase)
-      .groupBy((key: String, word: String) => word, Serialized.`with`(strings, strings))
+    builder.stream[String, String]("hamlet")
+      .flatMapValues(line => line.split(" "))
+      .mapValues(_.toLowerCase)
+      .groupBy((key, word) => word)
       .count
       .toStream
-      .to("word-counts", Produced.`with`(strings, longs))
+      .to("word-counts")
 
     /* Alternatively
 
-    builder.stream("hamlet", Consumed.`with`(strings, strings))
-      .flatMapValues[String](line => util.Arrays.asList(line.split(" "): _*))
-      .map[String, Integer]((key, word) => KeyValue.pair(word.toLowerCase, 1))
-      .groupByKey(Serialized.`with`(strings, ints))
+    builder.stream("hamlet")
+      .flatMapValues(line => line.split(" "))
+      .map((key, word) => (word.toLowerCase, 1))
+      .groupByKey
       .count
       .toStream
-      .to("word-counts", Produced.`with`(strings, longs))
+      .to("word-counts")
      */
   }
 
@@ -70,21 +67,21 @@ class Exercise_2_Aggregations {
     * 'clicks-per-site'.
     */
   def clicksPerSite(builder: StreamsBuilder): Unit = {
-    builder.stream("click-events", Consumed.`with`(strings, json))
-      .selectKey[String]((key, json) => json.path("provider").path("@id").asText())
-      .groupByKey(Serialized.`with`(strings, json))
+    builder.stream[String, JsonNode]("click-events")
+      .selectKey((key, json) => json.path("provider").path("@id").asText())
+      .groupByKey
       .count
       .toStream
-      .to("clicks-per-site", Produced.`with`(strings, longs))
+      .to("clicks-per-site")
 
     /* Alternatively
 
-    builder.stream("click-events", Consumed.`with`(strings, json))
-      .map[String, Integer]((key, json) => KeyValue.pair(json.path("provider").path("@id").asText, 1))
-      .groupByKey(Serialized.`with`(strings, ints))
+    builder.stream("click-events")
+      .map((key, json) => (json.path("provider").path("@id").asText, 1))
+      .groupByKey
       .count
       .toStream
-      .to("clicks-per-site", Produced.`with`(strings, longs))
+      .to("clicks-per-site")
      */
   }
 
@@ -96,20 +93,20 @@ class Exercise_2_Aggregations {
     * Hint: Use method 'reduce' on the grouped stream.
     */
   def totalClassifiedsPricePerSite(builder: StreamsBuilder): Unit = {
-    builder.stream("click-events", Consumed.`with`(strings, json))
+    builder.stream[String, JsonNode]("click-events")
       .filter(objectType("ClassifiedAd"))
-      .map[String, Integer]((key, json) => KeyValue.pair(
+      .map((key, json) => (
         json.path("provider").path("@id").asText,
         json.path("object").path("price").asInt)
       )
-      .groupByKey(Serialized.`with`(strings, ints))
+      .groupByKey
       .reduce((a, b) => a + b)
       .toStream
-      .to("total-classifieds-price-per-site", Produced.`with`(strings, ints))
+      .to("total-classifieds-price-per-site")
   }
 
-  def objectType(`type`: String): Predicate[String, JsonNode] =
-    (key, json) => json.path("object").path("@type").asText == `type`
+  def objectType(`type`: String) =
+    (key: String, json: JsonNode) => json.path("object").path("@type").asText == `type`
 
   /**
     * Read the topic 'pulse-events' and count the number of events
@@ -117,11 +114,11 @@ class Exercise_2_Aggregations {
     * the state store 'clicks-per-hour'.
     */
   def clicksPerHour(builder: StreamsBuilder): Unit = {
-    builder.stream("click-events", Consumed.`with`(strings, json))
-      .selectKey[String]((key, json) => json.path("provider").path("@id").asText)
-      .groupByKey(Serialized.`with`(strings, json))
+    builder.stream[String, JsonNode]("click-events")
+      .selectKey((key, json) => json.path("provider").path("@id").asText)
+      .groupByKey
       .windowedBy(TimeWindows.of(TimeUnit.HOURS.toMillis(1)))
-      .count(Materialized.as("clicks-per-hour"))
+      .count()(Materialized.as("clicks-per-hour"))
   }
 
 }

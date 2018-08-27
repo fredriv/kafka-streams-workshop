@@ -2,8 +2,8 @@ package kafkastreams.examples
 
 import com.madewithtea.mockedstreams.MockedStreams
 
-//import kafkastreams.javaexamples.BranchExample
-import kafkastreams.scalaexamples.BranchExample
+import kafkastreams.javaexamples.BranchExample
+//import kafkastreams.scalaexamples.BranchExample
 import org.scalatest.{FlatSpec, Matchers}
 
 class BranchTest extends FlatSpec with Matchers with ArticlesTestBase {

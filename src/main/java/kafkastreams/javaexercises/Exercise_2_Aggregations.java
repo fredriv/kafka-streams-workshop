@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import kafkastreams.serdes.JsonNodeSerde;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.Consumed;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.Serialized;
@@ -54,7 +54,7 @@ public class Exercise_2_Aggregations {
     public void countWordOccurrences(StreamsBuilder builder) {
         builder.stream("hamlet", Consumed.with(strings, strings))
                 .flatMapValues(line -> Arrays.asList(line.split(" ")))
-                .mapValues(String::toLowerCase)
+                .mapValues(word -> word.toLowerCase())
                 .groupBy((k, word) -> word, Serialized.with(strings, strings))
                 .count()
                 .toStream()
