@@ -32,7 +32,7 @@ class Exercise_2_AggregationsTest extends ExerciseBase {
     )
 
     val result = MockedStreams()
-      .topology(builder => exercise2.countColorOccurrences(builder))
+      .topology(builder => exercise2.countColorOccurrences(toBuilder(builder)))
       .input("colors", strings, strings, colors)
       .output("color-counts", strings, longs, expected.size)
 
@@ -59,7 +59,7 @@ class Exercise_2_AggregationsTest extends ExerciseBase {
     )
 
     val result = MockedStreams()
-      .topology(builder => exercise2.countWordOccurrences(builder))
+      .topology(builder => exercise2.countWordOccurrences(toBuilder(builder)))
       .input("hamlet", strings, strings, hamlet)
       .output("word-counts", strings, longs, expected.length)
 
@@ -78,7 +78,7 @@ class Exercise_2_AggregationsTest extends ExerciseBase {
     )
 
     val result = MockedStreams()
-      .topology(builder => exercise2.clicksPerSite(builder))
+      .topology(builder => exercise2.clicksPerSite(toBuilder(builder)))
       .input("click-events", strings, json, clickEvents)
       .output("clicks-per-site", strings, longs, expected.length)
 
@@ -95,7 +95,7 @@ class Exercise_2_AggregationsTest extends ExerciseBase {
     )
 
     val result = MockedStreams()
-      .topology(builder => exercise2.totalClassifiedsPricePerSite(builder))
+      .topology(builder => exercise2.totalClassifiedsPricePerSite(toBuilder(builder)))
       .input("click-events", strings, json, clickEvents)
       .output("total-classifieds-price-per-site", strings, ints, expected.length)
 
@@ -109,7 +109,7 @@ class Exercise_2_AggregationsTest extends ExerciseBase {
     conf.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, classOf[PublishedTimestampExtractor].getName)
 
     val stream = MockedStreams()
-      .topology(builder => exercise2.clicksPerHour(builder))
+      .topology(builder => exercise2.clicksPerHour(toBuilder(builder)))
       .input("click-events", strings, json, clickEvents)
       .stores(Seq("clicks-per-hour"))
       .config(conf)
