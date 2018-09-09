@@ -19,17 +19,6 @@ class Exercise_1_FilterAndTransformTest extends ExerciseBase {
     "Located at the Oslo Spektrum conference centre"
   ).map((null, _))
 
-  test("Events should flow directly through the Kafka Streams topology") {
-    val expected = input
-
-    val result = MockedStreams()
-      .topology(builder => exercise1.passEventsThroughDirectly(toBuilder(builder)))
-      .input("text", strings, strings, input)
-      .output("pass-through", strings, strings, expected.size)
-
-    result shouldEqual expected
-  }
-
   test("Get length of lines") {
     val expected = List(25, 26, 54, 46)
 

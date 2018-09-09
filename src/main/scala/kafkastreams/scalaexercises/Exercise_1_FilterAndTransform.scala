@@ -13,15 +13,6 @@ class Exercise_1_FilterAndTransform {
   private implicit val json = new JsonNodeSerde
 
   /**
-    * Read the Kafka topic 'text' and send the contents directly to
-    * the new topic 'pass-through'
-    */
-  def passEventsThroughDirectly(builder: StreamsBuilder): Unit = {
-    val stream = builder.stream[String, String]("text")
-    stream.to("pass-through")
-  }
-
-  /**
     * Read the Kafka topic 'text', convert each line of text to the
     * length of that text and send it to the topic 'line-lengths'
     * as a stream of ints
