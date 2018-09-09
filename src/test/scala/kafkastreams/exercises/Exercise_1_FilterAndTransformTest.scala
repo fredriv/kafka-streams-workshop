@@ -13,10 +13,10 @@ class Exercise_1_FilterAndTransformTest extends ExerciseBase {
   val json = new JsonNodeSerde
 
   val input = List(
-    "Welcome to JFokus 2018!",
-    "February 5-7, 2018 Stockholm",
-    "Sweden's largest developer conference",
-    "Located at the Stockholm Waterfront conference centre"
+    "Welcome to JavaZone 2018!",
+    "September 11-13, 2018 Oslo",
+    "Europe's biggest community-driven developer conference",
+    "Located at the Oslo Spektrum conference centre"
   ).map((null, _))
 
   test("Events should flow directly through the Kafka Streams topology") {
@@ -31,7 +31,7 @@ class Exercise_1_FilterAndTransformTest extends ExerciseBase {
   }
 
   test("Get length of lines") {
-    val expected = List(23, 28, 37, 53)
+    val expected = List(25, 26, 54, 46)
 
     val result = MockedStreams()
       .topology(builder => exercise1.lineLengths(toBuilder(builder)))
@@ -42,7 +42,7 @@ class Exercise_1_FilterAndTransformTest extends ExerciseBase {
   }
 
   test("Get the number of words per line") {
-    val expected = List(4, 4, 4, 7)
+    val expected = List(4, 4, 5, 7)
 
     val result = MockedStreams()
       .topology(builder => exercise1.wordsPerLine(toBuilder(builder)))
@@ -54,8 +54,8 @@ class Exercise_1_FilterAndTransformTest extends ExerciseBase {
 
   test("Get the lines containing 'conference'") {
     val expected = List(
-      "Sweden's largest developer conference",
-      "Located at the Stockholm Waterfront conference centre"
+      "Europe's biggest community-driven developer conference",
+      "Located at the Oslo Spektrum conference centre"
     )
 
     val result = MockedStreams()
@@ -68,10 +68,10 @@ class Exercise_1_FilterAndTransformTest extends ExerciseBase {
 
   test("Get all the words") {
     val expected = List(
-      "Welcome", "to", "JFokus", "2018!",
-      "February", "5-7,", "2018", "Stockholm",
-      "Sweden's", "largest", "developer", "conference",
-      "Located", "at", "the", "Stockholm", "Waterfront", "conference", "centre"
+      "Welcome", "to", "JavaZone", "2018!",
+      "September", "11-13,", "2018", "Oslo",
+      "Europe's", "biggest", "community-driven", "developer", "conference",
+      "Located", "at", "the", "Oslo", "Spektrum", "conference", "centre"
     )
 
     val result = MockedStreams()
