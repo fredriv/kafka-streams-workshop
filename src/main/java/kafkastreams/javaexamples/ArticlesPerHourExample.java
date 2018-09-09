@@ -37,7 +37,7 @@ public class ArticlesPerHourExample extends KafkaStreamsApp {
     }
 
     public Topology createTopology(StreamsBuilder builder) {
-        Serde<String> strings = new Serdes.StringSerde();
+        Serde<String> strings = Serdes.String();
         JsonNodeSerde json = new JsonNodeSerde();
 
         KStream<String, JsonNode> articles = builder.stream("Articles", Consumed.with(strings, json));

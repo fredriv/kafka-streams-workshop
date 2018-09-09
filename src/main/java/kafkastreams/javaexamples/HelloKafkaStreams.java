@@ -14,7 +14,7 @@ public class HelloKafkaStreams extends KafkaStreamsApp {
     }
 
     public Topology createTopology(StreamsBuilder builder) {
-        Serde<String> strings = new Serdes.StringSerde();
+        Serde<String> strings = Serdes.String();
 
         builder.stream("names", Consumed.with(strings, strings))
                 .mapValues(name -> "Hello, " + name + "!")
