@@ -3,7 +3,7 @@ package kafkastreams.exercises
 import com.madewithtea.mockedstreams.MockedStreams
 import org.apache.kafka.common.serialization.Serdes
 
-class Exercise_0_HelloKafkaStreams extends ExerciseBase {
+class Exercise_0_HelloKafkaStreamsTest extends ExerciseBase {
 
   val strings = Serdes.String()
 
