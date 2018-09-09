@@ -12,6 +12,8 @@ import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.processor.TimestampExtractor
 
+import scala.collection.immutable
+
 class Exercise_2_AggregationsTest extends ExerciseBase {
 
   val strings = Serdes.String()
@@ -19,8 +21,10 @@ class Exercise_2_AggregationsTest extends ExerciseBase {
   val longs = Serdes.Long()
   val json = new JsonNodeSerde
 
-  test("Count number of occurrences of each color") {
-    val colors = List("red", "blue", "pink", "red", "green", "pink", "yellow").map((null, _))
+  test("Count number of occurrences of each color key") {
+    // List of events with color as key and empty value
+    val colors = List("red", "blue", "pink", "red", "green", "pink", "yellow").map(color => (color, ""))
+
     val expected = List(
       "red" -> 1,
       "blue" -> 1,
@@ -32,7 +36,29 @@ class Exercise_2_AggregationsTest extends ExerciseBase {
     )
 
     val result = MockedStreams()
-      .topology(builder => exercise2.countColorOccurrences(toBuilder(builder)))
+      .topology(builder => exercise2.countColorKeyOccurrences(toBuilder(builder)))
+      .input("colors", strings, strings, colors)
+      .output("color-counts", strings, longs, expected.size)
+
+    result shouldBe expected
+  }
+
+  test("Count number of occurrences of each color value") {
+    // List of events with color as value and null key
+    val colors = List("red", "blue", "pink", "red", "green", "pink", "yellow").map(color => (null, color))
+
+    val expected = List(
+      "red" -> 1,
+      "blue" -> 1,
+      "pink" -> 1,
+      "red" -> 2,
+      "green" -> 1,
+      "pink" -> 2,
+      "yellow" -> 1
+    )
+
+    val result = MockedStreams()
+      .topology(builder => exercise2.countColorValueOccurrences(toBuilder(builder)))
       .input("colors", strings, strings, colors)
       .output("color-counts", strings, longs, expected.size)
 
@@ -81,6 +107,31 @@ class Exercise_2_AggregationsTest extends ExerciseBase {
       .topology(builder => exercise2.clicksPerSite(toBuilder(builder)))
       .input("click-events", strings, json, clickEvents)
       .output("clicks-per-site", strings, longs, expected.length)
+
+    result shouldBe expected
+  }
+
+  test("Total price per site") {
+    val prices: immutable.Seq[(String, Integer)] = List(
+      "sdrn:schibsted:client:finn" -> 1500,
+      "sdrn:schibsted:client:blocket" -> 23000,
+      "sdrn:schibsted:client:leboncoin" -> 1,
+      "sdrn:schibsted:client:finn" -> 198,
+      "sdrn:schibsted:client:finn" -> 500
+    ).map { case (k, v) => (k, Integer.valueOf(v)) }
+
+    val expected = List(
+      "sdrn:schibsted:client:finn" -> 1500,
+      "sdrn:schibsted:client:blocket" -> 23000,
+      "sdrn:schibsted:client:leboncoin" -> 1,
+      "sdrn:schibsted:client:finn" -> 1698,
+      "sdrn:schibsted:client:finn" -> 2198
+    )
+
+    val result = MockedStreams()
+      .topology(builder => exercise2.totalPricePerSite(toBuilder(builder)))
+      .input("prices", strings, ints, prices)
+      .output("total-price-per-site", strings, ints, expected.length)
 
     result shouldBe expected
   }

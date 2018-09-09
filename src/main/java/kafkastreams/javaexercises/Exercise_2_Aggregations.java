@@ -26,9 +26,21 @@ public class Exercise_2_Aggregations {
 
     /**
      * Read the topic 'colors' and count the number of occurrences of
-     * each color. Write the result to the topic 'color-counts'.
+     * each color *key*. Write the result to the topic 'color-counts'.
      */
-    public void countColorOccurrences(StreamsBuilder builder) {
+    public void countColorKeyOccurrences(StreamsBuilder builder) {
+        builder.stream("colors", Consumed.with(strings, strings))
+                .groupByKey(Serialized.with(strings, strings))
+                .count()
+                .toStream()
+                .to("color-counts", Produced.with(strings, longs));
+    }
+
+    /**
+     * Read the topic 'colors' and count the number of occurrences of
+     * each color *value*. Write the result to the topic 'color-counts'.
+     */
+    public void countColorValueOccurrences(StreamsBuilder builder) {
         builder.stream("colors", Consumed.with(strings, strings))
                 .groupBy((key, color) -> color, Serialized.with(strings, strings))
                 .count()
@@ -97,11 +109,23 @@ public class Exercise_2_Aggregations {
     }
 
     /**
+     * Read the topic 'prices' and compute the total price per site (key).
+     * Write the results to the topic 'total-price-per-site'.
+     *
+     * Hint: Use method 'reduce' on the grouped stream.
+     */
+    public void totalPricePerSite(StreamsBuilder builder) {
+        builder.stream("prices", Consumed.with(strings, ints))
+                .groupByKey(Serialized.with(strings, ints))
+                .reduce((a, b) -> a + b)
+                .toStream()
+                .to("total-price-per-site", Produced.with(strings, ints));
+    }
+
+    /**
      * Read the topic 'click-events' and compute the total value
      * (field 'object.price') of the classified ads per site. Write
      * the results to the topic 'total-classifieds-price-per-site'.
-     *
-     * Hint: Use method 'reduce' on the grouped stream.
      */
     public void totalClassifiedsPricePerSite(StreamsBuilder builder) {
         builder.stream("click-events", Consumed.with(strings, json))
