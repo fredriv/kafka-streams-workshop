@@ -15,9 +15,17 @@ class Exercise_2_Aggregations {
 
   /**
     * Read the topic 'colors' and count the number of occurrences of
-    * each color. Write the result to the topic 'color-counts'.
+    * each color *key*. Write the result to the topic 'color-counts'.
     */
-  def countColorOccurrences(builder: StreamsBuilder): Unit = {
+  def countColorKeyOccurrences(builder: StreamsBuilder): Unit = {
+
+  }
+
+  /**
+    * Read the topic 'colors' and count the number of occurrences of
+    * each color *value*. Write the result to the topic 'color-counts'.
+    */
+  def countColorValueOccurrences(builder: StreamsBuilder): Unit = {
 
   }
 
@@ -40,11 +48,19 @@ class Exercise_2_Aggregations {
   }
 
   /**
+    * Read the topic 'prices' and compute the total price per site (key).
+    * Write the results to the topic 'total-price-per-site'.
+    *
+    * Hint: Use method 'reduce' on the grouped stream.
+    */
+  def totalPricePerSite(builder: StreamsBuilder): Unit = {
+
+  }
+
+  /**
     * Read the topic 'click-events' and compute the total value
     * (field 'object.price') of the classified ads per site. Write
     * the results to the topic 'total-classifieds-price-per-site'.
-    *
-    * Hint: Use method 'reduce' on the grouped stream.
     */
   def totalClassifiedsPricePerSite(builder: StreamsBuilder): Unit = {
 
