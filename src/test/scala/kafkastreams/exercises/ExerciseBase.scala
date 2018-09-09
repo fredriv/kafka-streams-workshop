@@ -18,5 +18,6 @@ trait ExerciseBase extends FunSuite with Matchers {
   val exercise0 = new Exercise_0_HelloKafkaStreams
   val exercise1 = new Exercise_1_FilterAndTransform
   val exercise2 = new Exercise_2_Aggregations
+  val exercise3 = new Exercise_3_Joins
 
 }
