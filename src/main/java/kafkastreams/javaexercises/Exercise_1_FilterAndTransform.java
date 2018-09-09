@@ -22,15 +22,6 @@ public class Exercise_1_FilterAndTransform {
     private static Serde<JsonNode> json = new JsonNodeSerde();
 
     /**
-     * Read the Kafka topic 'text' and send the contents directly to
-     * the new topic 'pass-through'
-     */
-    public void passEventsThroughDirectly(StreamsBuilder builder) {
-        KStream<String, String> stream = builder.stream("text", Consumed.with(strings, strings));
-        stream.to("pass-through", Produced.with(strings, strings));
-    }
-
-    /**
      * Read the Kafka topic 'text', convert each line of text to the
      * length of that text and send it to the topic 'line-lengths'
      * as a stream of ints
