@@ -1,6 +1,7 @@
 package kafkastreams.scalaexamples
 
 import com.fasterxml.jackson.databind.JsonNode
+import kafkastreams.scalautils.KafkaStreamsDSL._
 import kafkastreams.scalautils.JacksonDSL._
 import kafkastreams.serdes.JsonNodeSerde
 import org.apache.kafka.streams.Topology
@@ -23,6 +24,14 @@ class FilterTransformExample extends KafkaStreamsApp {
 
     bbcArticles.to("BBC-Articles")
     bbcTitles.to("BBC-Titles")
+
+    /* Alternatively, with KafkaStreamsDSL:
+
+    articles \
+      (article => article("site").asText == "bbc") ~>
+      (article => article("title").asText) ~>
+      "BBC-Titles"
+     */
 
     builder.build()
   }

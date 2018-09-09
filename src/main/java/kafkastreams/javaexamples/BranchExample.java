@@ -34,6 +34,18 @@ public class BranchExample extends KafkaStreamsApp {
         articlesPerSite[2].to("FoxNews-Articles", Produced.with(strings, json));
         articlesPerSite[3].to("Other-Articles", Produced.with(strings, json));
 
+        /* Alternatively, using new 'to' method:
+
+        articles.to((key, value, recordContext) -> {
+            switch (value.path("site").asText()) {
+                case "bbc": return "BBC-Articles";
+                case "cnn": return "BBC-Articles";
+                case "foxnews": return "FoxNews-Articles";
+                default: return "Other-Articles";
+            }
+        });
+         */
+
         return builder.build();
     }
 }
