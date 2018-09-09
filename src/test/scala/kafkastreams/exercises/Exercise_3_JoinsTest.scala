@@ -71,7 +71,7 @@ class Exercise_3_JoinsTest extends ExerciseBase {
     )
 
     val result = MockedStreams()
-      .topology(builder => exercise3.accountStateJoin(builder))
+      .topology(builder => exercise3.accountStateJoin(toBuilder(builder)))
       .input("account-state-changelog", strings, strings, accountChangeLog)
       .input("user-events", strings, strings, userEvent)
       .output("user-events-with-accountstate", strings, strings, expected.length)
@@ -87,7 +87,7 @@ class Exercise_3_JoinsTest extends ExerciseBase {
     )
 
     val result = MockedStreams()
-      .topology(builder => exercise3.accountCancellationLastVisitedPage(builder))
+      .topology(builder => exercise3.accountCancellationLastVisitedPage(toBuilder(builder)))
       .input("user-events", strings, strings, userEvent)
       .input("account-state-changelog", strings, strings, accountChangeLog)
       .output("account-cancellation-last-visited-page", strings, strings, expected.length)
@@ -144,7 +144,7 @@ class Exercise_3_JoinsTest extends ExerciseBase {
 
     val result = MockedStreams()
       .config(conf)
-      .topology(builder => exercise3.pageViewsWithAccountStateChange(builder))
+      .topology(builder => exercise3.pageViewsWithAccountStateChange(toBuilder(builder)))
       .input("user-events", strings, json, timestampedUserEvent)
       .input("account-state-changelog", strings, json, timestampedAccountChangeLog)
       .output("account-state-coinciding-pageview", strings, json, expected.length)
@@ -178,7 +178,7 @@ class Exercise_3_JoinsTest extends ExerciseBase {
 
     val result = MockedStreams()
       .config(conf)
-      .topology(builder => exercise3.pageViewsWithListOfAccountStateChange(builder))
+      .topology(builder => exercise3.pageViewsWithListOfAccountStateChange(toBuilder(builder)))
       .input("user-events", strings, json, timestampedUserEvent)
       .input("account-state-changelog", strings, json, timestampedAccountChangeLog)
       .output("account-state-coinciding-pageslist", strings, json, expected.length*100)
