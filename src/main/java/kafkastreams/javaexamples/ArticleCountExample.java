@@ -15,8 +15,8 @@ public class ArticleCountExample extends KafkaStreamsApp {
     }
 
     public Topology createTopology(StreamsBuilder builder) {
-        Serde<String> strings = new Serdes.StringSerde();
-        Serde<Long> longs = new Serdes.LongSerde();
+        Serde<String> strings = Serdes.String();
+        Serde<Long> longs = Serdes.Long();
         JsonNodeSerde json = new JsonNodeSerde();
 
         KStream<String, JsonNode> articles = builder.stream("Articles", Consumed.with(strings, json));
