@@ -27,6 +27,18 @@ class BranchExample extends KafkaStreamsApp {
     for ((stream, topic) <- articlesPerSite.zip(topics))
       stream.to(topic)
 
+    /* Alternatively, using new 'to' method:
+
+    articles.to((key, article, recordContext) =>
+      article("site").asText match {
+        case "bbc" => "BBC-Articles"
+        case "cnn" => "CNN-Articles"
+        case "foxnews" => "FoxNews-Articles"
+        case _ => "Other-Articles"
+      }
+    )
+     */
+
     builder.build()
   }
 }
