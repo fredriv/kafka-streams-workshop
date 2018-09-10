@@ -38,9 +38,24 @@ public class Exercise_3_Joins {
 
     }
 
+    private ValueJoiner<JsonNode, JsonNode, JsonNode> createPageViewRelatedToAccountChangeJoiner(ObjectMapper mapper) {
+        return (JsonNode accountState, JsonNode pageView) ->
+                getPageViewRelatedToAccountChange(mapper, accountState, pageView);
+    }
+
+    private JsonNode getPageViewRelatedToAccountChange(ObjectMapper mapper, JsonNode accountState, JsonNode pageView) {
+        ObjectNode node = mapper.createObjectNode();
+
+        // TODO populate the JSON object with the expected fields. See Exercise_3_JoinsTest for details.
+
+        return node;
+    }
+
     /**
      * Emit an event stream of account state changes paired with
      * each pageview happening within 1000 ms of the state change.
+     *
+     * You can fill in and use the ValueJoiner helper methods above.
      */
     public void pageViewsWithAccountStateChange(StreamsBuilder builder) {
 
