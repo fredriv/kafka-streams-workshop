@@ -49,9 +49,27 @@ public class Exercise_3_Joins {
                 .to("account-cancellation-last-visited-page", Produced.with(strings, strings));
     }
 
+    private ValueJoiner<JsonNode, JsonNode, JsonNode> createPageViewRelatedToAccountChangeJoiner(ObjectMapper mapper) {
+        return (JsonNode accountState, JsonNode pageView) ->
+                getPageViewRelatedToAccountChange(mapper, accountState, pageView);
+    }
+
+    private JsonNode getPageViewRelatedToAccountChange(ObjectMapper mapper, JsonNode accountState, JsonNode pageView) {
+        ObjectNode node = mapper.createObjectNode();
+
+        node.set("pageTimestamp", pageView.path("timestamp"));
+        node.set("stateTimestamp", accountState.path("timestamp"));
+        node.set("page", pageView.path("page"));
+        node.set("state", accountState.path("state"));
+
+        return node;
+    }
+
     /**
      * Emit an event stream of account state changes paired with
      * each pageview happening within 1000 ms of the state change.
+     *
+     * You can fill in and use the ValueJoiner helper methods above.
      */
     public void pageViewsWithAccountStateChange(StreamsBuilder builder) {
         KStream<String, JsonNode> accountStateStream = builder.stream("account-state-changelog", Consumed.with(strings, json));
@@ -61,16 +79,7 @@ public class Exercise_3_Joins {
 
         accountStateStream
                 .join(userEventStream,
-                        (JsonNode accountState, JsonNode pageView) -> {
-                            ObjectNode node = mapper.createObjectNode();
-
-                            node.set("pageTimestamp", pageView.path("timestamp"));
-                            node.set("stateTimestamp", accountState.path("timestamp"));
-                            node.set("page", pageView.path("page"));
-                            node.set("state", accountState.path("state"));
-                            return (JsonNode) node;
-                        },
-
+                        createPageViewRelatedToAccountChangeJoiner(mapper),
                         JoinWindows.of(1000),
                         Joined.with(strings, json, json))
                 .to("account-state-coinciding-pageview", Produced.with(strings, json));
@@ -103,14 +112,7 @@ public class Exercise_3_Joins {
 
         accountStateStream
                 .join(userEventStream,
-                        (JsonNode accountState, JsonNode pageView) -> {
-                            ObjectNode node = mapper.createObjectNode();
-                            node.set("pageTimestamp", pageView.path("timestamp"));
-                            node.set("stateTimestamp", accountState.path("timestamp"));
-                            node.set("page", pageView.path("page"));
-                            node.set("state", accountState.path("state"));
-                            return (JsonNode) node;
-                        },
+                        createPageViewRelatedToAccountChangeJoiner(mapper),
                         JoinWindows.of(1000),
                         Joined.with(strings, json, json))
                 .groupBy((key, value) -> key + "-" + value.path("state").asText() + "-" + value.path("stateTimestamp").toString()) // Gotcha - what happens if you use .textValue here?
